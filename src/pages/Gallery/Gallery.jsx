@@ -189,12 +189,21 @@ export default function Gallery() {
                 key={g.id}
                 ref={(el) => (itemRefs.current[i] = el)}
                 className={`${styles.item} ${i === actif ? styles.focus : ''}`}
-                onClick={() => ouvrir(i)}
+                onClick={() => g.type !== 'video' && ouvrir(i)}
               >
                 <div className={styles.media}>
                   {g.url ? (
                     g.type === 'video' ? (
-                      <video src={g.url} muted playsInline preload="metadata" />
+                      // vidéo : lecture continue en boucle, sans son, non cliquable
+                      <video
+                        src={g.url}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="auto"
+                        tabIndex={-1}
+                      />
                     ) : (
                       <img src={g.url} alt={g.legende || 'Coupe BARBER95'} draggable="false" />
                     )
@@ -233,7 +242,7 @@ export default function Gallery() {
             ))}
           </div>
 
-          <p className={styles.hint}>Glisse pour explorer · touche un média pour l’agrandir</p>
+          <p className={styles.hint}>Glisse pour explorer · touche une photo pour l’agrandir</p>
         </>
       )}
 
