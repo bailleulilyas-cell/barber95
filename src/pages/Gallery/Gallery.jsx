@@ -6,6 +6,33 @@ import { getGalerie, ajouterMedia, supprimerMedia } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import styles from './Gallery.module.css'
 
+// Vidéo en lecture auto fiable : React n'applique pas toujours `muted` sur le DOM,
+// ce qui fait bloquer l'autoplay par le navigateur. On force muted + play() via ref.
+function VideoTile({ src }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const v = ref.current
+    if (!v) return
+    v.muted = true
+    v.defaultMuted = true
+    const lancer = () => v.play().catch(() => {})
+    if (v.readyState >= 2) lancer()
+    else v.addEventListener('loadeddata', lancer, { once: true })
+  }, [src])
+  return (
+    <video
+      ref={ref}
+      src={src}
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="auto"
+      tabIndex={-1}
+    />
+  )
+}
+
 export default function Gallery() {
   const { isAdmin } = useAuth()
   const trackRef = useRef(null)
@@ -195,15 +222,7 @@ export default function Gallery() {
                   {g.url ? (
                     g.type === 'video' ? (
                       // vidéo : lecture continue en boucle, sans son, non cliquable
-                      <video
-                        src={g.url}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        preload="auto"
-                        tabIndex={-1}
-                      />
+                      <VideoTile src={g.url} />
                     ) : (
                       <img src={g.url} alt={g.legende || 'Coupe BARBER95'} draggable="false" />
                     )
