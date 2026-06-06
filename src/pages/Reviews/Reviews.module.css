@@ -1,0 +1,96 @@
+.titre {
+  font-size: clamp(2.6rem, 8vw, 4.6rem);
+  margin: 10px 0 36px;
+}
+
+.etat {
+  font-family: var(--inter);
+  color: var(--gris-attenue);
+  max-width: 46ch;
+  padding: 12px 0 30px;
+}
+
+.moyenne {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 28px 4px 34px;
+  border-top: 1px solid var(--ligne);
+  border-bottom: 1px solid var(--ligne);
+  margin-bottom: 40px;
+}
+.note {
+  font-family: var(--syne);
+  font-weight: 800;
+  font-size: clamp(3.4rem, 12vw, 5.4rem);
+  line-height: 1;
+  color: var(--kaki);
+}
+.moyenneInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.compte {
+  font-family: var(--syne);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gris-attenue);
+}
+
+.etoiles {
+  display: inline-flex;
+  gap: 2px;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+.pleine {
+  color: var(--kaki);
+}
+.vide {
+  color: var(--ligne);
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 620px) {
+  .grille {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.carte {
+  background: var(--noir);
+  border: 1px solid var(--ligne);
+  border-radius: 2px;
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.carteTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.prenom {
+  font-family: var(--syne);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.com {
+  font-family: var(--inter);
+  font-size: 0.96rem;
+  color: var(--gris-clair);
+  line-height: 1.55;
+}
+.date {
+  font-family: var(--inter);
+  font-size: 0.78rem;
+  color: var(--gris-attenue);
+}

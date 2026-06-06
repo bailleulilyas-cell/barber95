@@ -1,0 +1,33 @@
+.titre {
+  font-size: clamp(2.4rem, 8vw, 4.2rem);
+  margin: 10px 0 14px;
+}
+.txt {
+  font-family: var(--inter);
+  color: var(--gris-attenue);
+  max-width: 44ch;
+  margin-bottom: 32px;
+}
+.g {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4em;
+  height: 1.4em;
+  border-radius: 50%;
+  background: var(--noir);
+  color: var(--kaki);
+  font-weight: 800;
+}
+
+.loader {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--syne);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: var(--gris-attenue);
+}

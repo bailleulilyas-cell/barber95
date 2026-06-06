@@ -1,0 +1,63 @@
+.titre {
+  font-size: clamp(2.6rem, 8vw, 4.6rem);
+  margin: 10px 0 44px;
+  color: var(--gris-clair);
+}
+
+.liste {
+  border-top: 1px solid var(--ligne);
+}
+
+.ligne {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 26px 4px;
+  border-bottom: 1px solid var(--ligne);
+}
+
+.gauche {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.nom {
+  font-family: var(--syne);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0.01em;
+}
+.desc {
+  font-family: var(--inter);
+  font-size: 0.9rem;
+  color: var(--gris-attenue);
+}
+
+.duree {
+  font-family: var(--syne);
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  color: var(--gris-attenue);
+  text-transform: uppercase;
+}
+
+.prix {
+  font-family: var(--syne);
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: var(--kaki);
+  min-width: 72px;
+  text-align: right;
+}
+
+.fidNote {
+  font-family: var(--inter);
+  font-size: 0.9rem;
+  color: var(--gris-attenue);
+  margin-top: 26px;
+}
+
+.cta {
+  margin-top: 40px;
+}

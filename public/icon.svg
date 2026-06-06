@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#111111"/>
+  <text x="50%" y="46%" text-anchor="middle" font-family="'Syne', sans-serif" font-weight="800"
+        font-size="150" fill="#e8e6e0" letter-spacing="-6">BARB</text>
+  <text x="50%" y="74%" text-anchor="middle" font-family="'Syne', sans-serif" font-weight="800"
+        font-size="150" fill="#b5a76a" letter-spacing="2">95</text>
+</svg>

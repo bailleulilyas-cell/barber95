@@ -1,0 +1,25 @@
+.nf {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+@media (min-width: 1025px) {
+  .nf {
+    margin-left: var(--rail);
+    padding: 0 72px;
+  }
+}
+.inner {
+  max-width: 600px;
+}
+.titre {
+  font-size: clamp(2.6rem, 10vw, 5rem);
+  margin: 12px 0 14px;
+}
+.txt {
+  font-family: var(--inter);
+  color: var(--gris-attenue);
+  margin-bottom: 32px;
+}

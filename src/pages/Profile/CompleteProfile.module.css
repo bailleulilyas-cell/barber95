@@ -1,0 +1,50 @@
+.titre {
+  font-size: clamp(2.2rem, 7vw, 3.8rem);
+  margin: 10px 0 14px;
+}
+.intro {
+  font-family: var(--inter);
+  color: var(--gris-attenue);
+  max-width: 46ch;
+  margin-bottom: 34px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 420px;
+}
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.champ span {
+  font-family: var(--syne);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gris-attenue);
+}
+.champ input {
+  background: var(--noir);
+  border: 1px solid var(--ligne);
+  border-radius: 2px;
+  padding: 13px 14px;
+  color: var(--gris-clair);
+  font-family: var(--inter);
+  font-size: 1rem;
+}
+.champ input:focus {
+  outline: none;
+  border-color: var(--kaki);
+}
+.champ input::placeholder {
+  color: var(--gris-attenue);
+}
+.err {
+  font-family: var(--inter);
+  font-size: 0.86rem;
+  color: #c98b8b;
+}

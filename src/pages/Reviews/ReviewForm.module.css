@@ -1,0 +1,64 @@
+.titre {
+  font-size: clamp(2.4rem, 8vw, 4rem);
+  margin: 10px 0 24px;
+}
+.txt {
+  font-family: var(--inter);
+  color: var(--gris-attenue);
+  max-width: 46ch;
+  line-height: 1.6;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 460px;
+}
+.etoiles {
+  display: flex;
+  gap: 6px;
+}
+.etoile {
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--ligne);
+  transition: color 0.15s ease, transform 0.1s ease;
+}
+.etoile:hover {
+  transform: scale(1.12);
+}
+.pleine {
+  color: var(--kaki);
+}
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.champ span {
+  font-family: var(--syne);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gris-attenue);
+}
+.champ textarea {
+  background: var(--noir);
+  border: 1px solid var(--ligne);
+  border-radius: 2px;
+  padding: 13px 14px;
+  color: var(--gris-clair);
+  font-family: var(--inter);
+  font-size: 1rem;
+  resize: vertical;
+}
+.champ textarea:focus {
+  outline: none;
+  border-color: var(--kaki);
+}
+.err {
+  font-family: var(--inter);
+  font-size: 0.86rem;
+  color: #c98b8b;
+}

@@ -1,0 +1,20 @@
+{
+  "name": "BARBER95",
+  "short_name": "BARBER95",
+  "description": "Coiffeur barbier dans le Val-d'Oise (95). Réserve ta coupe en ligne.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

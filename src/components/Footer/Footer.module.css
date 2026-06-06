@@ -1,0 +1,64 @@
+.footer {
+  border-top: 1px solid var(--ligne);
+  margin-top: 72px;
+  padding-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mark {
+  font-family: var(--syne);
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: 0.14em;
+}
+.base {
+  font-family: var(--syne);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gris-attenue);
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-family: var(--syne);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+}
+.contact a:hover {
+  color: var(--kaki);
+}
+.contactVide {
+  font-family: var(--syne);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gris-attenue);
+}
+
+.bas {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--inter);
+  font-size: 0.78rem;
+  color: var(--gris-attenue);
+}
+.bas a:hover {
+  color: var(--gris-clair);
+}
+.sep {
+  opacity: 0.5;
+}

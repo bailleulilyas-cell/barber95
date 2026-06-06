@@ -1,0 +1,119 @@
+/* ════════════════════════════════════════════════════════════
+   BARBER95 — Design system global
+   ════════════════════════════════════════════════════════════ */
+
+:root {
+  --noir: #1a1a1a;
+  --noir-fond: #111111;
+  --gris-clair: #e8e6e0; /* gris clair chaud */
+  --kaki: #b5a76a; /* accent kaki doré */
+  --kaki-faible: rgba(181, 167, 106, 0.14);
+  --kaki-bord: rgba(181, 167, 106, 0.4);
+  --ligne: #2a2a2a; /* séparateurs fins */
+  --gris-attenue: #6b6862;
+
+  --syne: 'Syne', sans-serif;
+  --inter: 'Inter', sans-serif;
+
+  --rail: 76px; /* largeur nav verticale desktop */
+  --rail-ouvert: 232px;
+
+  --t-rapide: 0.2s;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--noir-fond);
+  color: var(--gris-clair);
+  font-family: var(--inter);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+.syne {
+  font-family: var(--syne);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--syne);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* labels / sur-titres */
+.eyebrow {
+  font-family: var(--syne);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--kaki);
+}
+
+/* zone de contenu : décalée du rail sur desktop */
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* padding-haut généreux sur mobile pour dégager le burger fixe */
+  padding: 84px 22px 64px;
+}
+
+@media (min-width: 1025px) {
+  .page {
+    margin-left: var(--rail);
+    padding: 64px 56px 80px;
+  }
+}
+
+/* utilitaire conteneur */
+.wrap {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* respecte les préférences de mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+::selection {
+  background: var(--kaki);
+  color: var(--noir);
+}

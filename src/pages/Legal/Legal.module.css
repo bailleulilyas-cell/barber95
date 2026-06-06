@@ -1,0 +1,36 @@
+.titre {
+  font-size: clamp(2.2rem, 7vw, 3.6rem);
+  margin: 10px 0 30px;
+}
+.corps {
+  max-width: 60ch;
+  font-family: var(--inter);
+  color: var(--gris-clair);
+}
+.corps p {
+  margin-bottom: 16px;
+  color: var(--gris-attenue);
+}
+.corps h2 {
+  font-family: var(--syne);
+  font-size: 0.82rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gris-clair);
+  margin: 28px 0 10px;
+}
+.corps a {
+  color: var(--kaki);
+}
+.corps a:hover {
+  text-decoration: underline;
+}
+.note {
+  font-size: 0.84rem;
+  font-style: italic;
+}
+.maj {
+  margin-top: 30px;
+  font-size: 0.8rem;
+  color: var(--gris-attenue);
+}
