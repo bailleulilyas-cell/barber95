@@ -1,42 +1,55 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Reveal from '../../components/Reveal/Reveal'
 import MagneticButton from '../../components/MagneticButton/MagneticButton'
-import { Footer } from '../../components/Layout'
+import { IconClock } from '../../components/Icons'
 import { PRESTATIONS, FIDELITE } from '../../config'
+import { configured } from '../../lib/supabase'
+import { getPrestation } from '../../lib/api'
 import styles from './Pricing.module.css'
 
 export default function Pricing() {
   const navigate = useNavigate()
+  const [presta, setPresta] = useState(PRESTATIONS[0])
+
+  useEffect(() => {
+    if (configured) getPrestation().then((p) => p && setPresta(p)).catch(() => {})
+  }, [])
+
   return (
     <main className="page">
       <div className="wrap">
-        <Reveal>
-          <span className="eyebrow">Prestations</span>
-          <h1 className={styles.titre}>Tarifs</h1>
-        </Reveal>
+        <header className={styles.head}>
+          <h1 className="titrePage">Tarifs</h1>
+          <p className={styles.sub}>La prestation BARBER95</p>
+        </header>
 
-        <div className={styles.liste}>
-          {PRESTATIONS.map((p, i) => (
-            <Reveal key={p.id} delay={i * 90} className={styles.ligne}>
-              <div className={styles.gauche}>
-                <span className={styles.nom}>{p.nom}</span>
-                {p.description && <span className={styles.desc}>{p.description}</span>}
-              </div>
-              <span className={styles.duree}>{p.duree_minutes} min</span>
-              <span className={styles.prix}>{p.prix}€</span>
-            </Reveal>
-          ))}
+        <article className={styles.card} onClick={() => navigate('/reserver')}>
+          <div className={styles.cardTop}>
+            <h2 className={styles.nom}>{presta.nom}</h2>
+            <span className="badge badge-or">Populaire</span>
+          </div>
+          <p className={styles.desc}>
+            {presta.description || 'Coupe homme, finitions soignées au millimètre.'}
+          </p>
+          <div className={styles.cardBas}>
+            <span className={styles.prix}>{presta.prix}€</span>
+            <span className={styles.duree}>
+              <IconClock size={16} /> {presta.duree_minutes} min
+            </span>
+          </div>
+        </article>
+
+        <div className={styles.fid}>
+          <span className={styles.fidTitre}>Fidélité</span>
+          <p className={styles.fidTxt}>
+            1 coupe = 1 point. À {FIDELITE.objectif} points,{' '}
+            {FIDELITE.recompense.toLowerCase()}.
+          </p>
         </div>
 
-        <Reveal delay={120} className={styles.fidNote}>
-          Fidélité : 1 coupe = 1 point. À {FIDELITE.objectif} points, {FIDELITE.recompense.toLowerCase()}.
-        </Reveal>
-
-        <Reveal delay={180} className={styles.cta}>
-          <MagneticButton onClick={() => navigate('/reserver')}>Réserver</MagneticButton>
-        </Reveal>
-
-        <Footer />
+        <MagneticButton className={styles.cta} onClick={() => navigate('/reserver')}>
+          Réserver maintenant
+        </MagneticButton>
       </div>
     </main>
   )

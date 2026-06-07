@@ -1,17 +1,25 @@
-import { Outlet } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import Nav from './Nav/Nav'
 import Footer from './Footer/Footer'
-import PageTransition from './PageTransition/PageTransition'
+
+// remonte en haut à chaque changement de page
+function ScrollTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
 
 export default function Layout() {
   return (
     <>
-      <PageTransition />
-      <Nav />
+      <ScrollTop />
       <Outlet />
+      <Nav />
     </>
   )
 }
 
-// Footer réutilisable dans les pages de contenu (pas sur l'accueil plein écran).
 export { Footer }

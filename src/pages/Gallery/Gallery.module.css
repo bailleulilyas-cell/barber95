@@ -4,13 +4,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 64px 0 40px;
+  padding: 56px 0 calc(var(--nav-h) + 30px);
   overflow: hidden;
-}
-@media (min-width: 1025px) {
-  .page {
-    margin-left: var(--rail);
-  }
 }
 
 .head {

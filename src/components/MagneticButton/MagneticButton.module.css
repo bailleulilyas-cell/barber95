@@ -3,64 +3,58 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6em;
-  padding: 1.05em 2.1em;
-  font-family: var(--syne);
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  border-radius: 2px;
+  gap: 0.5em;
+  padding: 1em 1.6em;
+  font-family: var(--inter);
+  font-weight: 700;
+  font-size: 0.98rem;
+  letter-spacing: 0.01em;
+  border-radius: var(--r-sm);
   transition:
     transform 0.12s ease,
+    filter 0.25s ease,
     background-color 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease;
+    border-color 0.25s ease,
+    color 0.25s ease;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
 
 .label {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
 }
 
-/* ── solid : kaki plein ── */
+/* ── solid : or plein dégradé ── */
 .solid {
-  background: var(--kaki);
-  color: var(--noir);
+  background: var(--gold-grad);
+  color: #1a1a1a;
+  box-shadow: var(--shadow-gold);
 }
 .solid:hover {
-  background: #c7b878;
+  filter: brightness(1.05);
 }
 
-/* ── ghost : contour kaki ── */
+/* ── ghost : surface sombre + contour ── */
 .ghost {
-  background: transparent;
-  color: var(--kaki);
-  border: 1px solid var(--kaki-bord);
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--line-fort);
 }
 .ghost:hover {
-  border-color: var(--kaki);
-  background: var(--kaki-faible);
+  border-color: var(--gold-bord);
+  color: var(--gold);
 }
 
 .btn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
 
-/* ── Feedback tactile (mobile) : scale down + flash kaki ──
-   Sur pointeur grossier (pas d'effet magnétique souris). */
 @media (pointer: coarse) {
   .btn:active {
-    transform: scale(0.95);
-  }
-  .solid:active {
-    background: #d8c87f;
-  }
-  .ghost:active {
-    background: var(--kaki);
-    color: var(--noir);
+    transform: scale(0.96);
   }
 }

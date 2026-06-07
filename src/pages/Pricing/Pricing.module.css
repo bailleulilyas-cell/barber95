@@ -1,63 +1,81 @@
-.titre {
-  font-size: clamp(2.6rem, 8vw, 4.6rem);
-  margin: 10px 0 44px;
-  color: var(--gris-clair);
+.head {
+  margin-bottom: 22px;
+}
+.sub {
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin-top: 4px;
 }
 
-.liste {
-  border-top: 1px solid var(--ligne);
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.12s ease;
 }
-
-.ligne {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: 18px;
-  padding: 26px 4px;
-  border-bottom: 1px solid var(--ligne);
+.card:hover {
+  border-color: var(--gold-bord);
 }
-
-.gauche {
+.card:active {
+  transform: scale(0.99);
+}
+.cardTop {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 .nom {
-  font-family: var(--syne);
+  font-size: 1.4rem;
   font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: 0.01em;
 }
 .desc {
-  font-family: var(--inter);
-  font-size: 0.9rem;
-  color: var(--gris-attenue);
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 18px;
 }
-
-.duree {
-  font-family: var(--syne);
-  font-size: 0.9rem;
-  letter-spacing: 0.12em;
-  color: var(--gris-attenue);
-  text-transform: uppercase;
+.cardBas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-
 .prix {
-  font-family: var(--syne);
-  font-weight: 700;
-  font-size: 1.8rem;
-  color: var(--kaki);
-  min-width: 72px;
-  text-align: right;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+.duree {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
-.fidNote {
-  font-family: var(--inter);
+.fid {
+  margin: 22px 0 26px;
+  padding: 18px;
+  border-radius: var(--r);
+  background: var(--gold-faible);
+  border: 1px solid var(--gold-bord);
+}
+.fidTitre {
+  font-weight: 700;
+  color: var(--gold);
   font-size: 0.9rem;
-  color: var(--gris-attenue);
-  margin-top: 26px;
+}
+.fidTxt {
+  color: var(--text);
+  opacity: 0.85;
+  font-size: 0.9rem;
+  margin-top: 4px;
 }
 
 .cta {
-  margin-top: 40px;
+  width: 100%;
 }

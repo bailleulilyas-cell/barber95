@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import Reveal from '../../components/Reveal/Reveal'
+import { useNavigate } from 'react-router-dom'
 import MagneticButton from '../../components/MagneticButton/MagneticButton'
-import { Footer } from '../../components/Layout'
+import { IconClock, IconCheck } from '../../components/Icons'
 import { CRENEAUX } from '../../data/mock'
 import { PRESTATIONS } from '../../config'
+import { configured } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import {
-  getCreneauxOuverts,
+  getCreneauxEntre,
   getPrestation,
   reserverCreneau,
   confirmerReservation,
@@ -15,42 +16,42 @@ import {
 import { googleCalUrl, icsDataUri } from '../../lib/calendar'
 import styles from './Booking.module.css'
 
-function libelleJour(iso) {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  })
-}
+const JOURS_COURT = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+
 function heure(iso) {
   return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 }
+function jourLong(iso) {
+  return new Date(iso).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+}
 
 export default function Booking() {
-  const { configured, profile } = useAuth()
-  const [choisi, setChoisi] = useState(null)
-  const [form, setForm] = useState({ prenom: '', tel: '' })
-  const [confirme, setConfirme] = useState(false)
-
-  // données
-  const [creneaux, setCreneaux] = useState(configured ? [] : CRENEAUX)
+  const navigate = useNavigate()
+  const { profile } = useAuth()
   const [presta, setPresta] = useState(PRESTATIONS[0])
-  const [loading, setLoading] = useState(configured)
+  const [creneaux, setCreneaux] = useState([])
+  const [jourSel, setJourSel] = useState(null)
+  const [choisi, setChoisi] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
-
-  const connecte = configured && profile
-
-  // pré-remplit depuis le profil connecté
-  useEffect(() => {
-    if (profile) setForm({ prenom: profile.prenom || '', tel: profile.tel || '' })
-  }, [profile])
+  const [confirme, setConfirme] = useState(false)
 
   const charger = useCallback(async () => {
-    if (!configured) return
+    setErr(null)
+    if (!configured) {
+      setCreneaux(CRENEAUX)
+      setLoading(false)
+      return
+    }
     try {
-      setErr(null)
-      const [c, p] = await Promise.all([getCreneauxOuverts(), getPrestation()])
+      const debut = new Date()
+      const fin = new Date()
+      fin.setDate(fin.getDate() + 21)
+      const [c, p] = await Promise.all([
+        getCreneauxEntre(debut.toISOString(), fin.toISOString()),
+        getPrestation(),
+      ])
       setCreneaux(c)
       if (p) setPresta(p)
     } catch (e) {
@@ -58,13 +59,13 @@ export default function Booking() {
     } finally {
       setLoading(false)
     }
-  }, [configured])
+  }, [])
 
   useEffect(() => {
     charger()
   }, [charger])
 
-  // regroupe les créneaux par jour
+  // jours ayant au moins un créneau, triés
   const jours = useMemo(() => {
     const map = new Map()
     creneaux.forEach((c) => {
@@ -72,18 +73,27 @@ export default function Booking() {
       if (!map.has(cle)) map.set(cle, [])
       map.get(cle).push(c)
     })
-    return [...map.entries()].map(([cle, slots]) => ({
-      cle,
-      titre: libelleJour(slots[0].datetime_debut),
-      slots: slots.sort((a, b) => a.datetime_debut.localeCompare(b.datetime_debut)),
-    }))
+    return [...map.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([cle, slots]) => ({ cle, slots: slots.sort((a, b) => a.datetime_debut.localeCompare(b.datetime_debut)) }))
   }, [creneaux])
 
-  const valider = async (e) => {
-    e.preventDefault()
+  // sélectionne le 1er jour par défaut
+  useEffect(() => {
+    if (!jourSel && jours.length) setJourSel(jours[0].cle)
+  }, [jours, jourSel])
+
+  const slotsDuJour = useMemo(() => {
+    const j = jours.find((x) => x.cle === jourSel)
+    if (!j) return { matin: [], aprem: [] }
+    const matin = j.slots.filter((s) => new Date(s.datetime_debut).getHours() < 13)
+    const aprem = j.slots.filter((s) => new Date(s.datetime_debut).getHours() >= 13)
+    return { matin, aprem }
+  }, [jours, jourSel])
+
+  const confirmer = async () => {
     setErr(null)
     if (!configured) {
-      // mode démo : confirmation simulée
       setConfirme(true)
       return
     }
@@ -91,96 +101,38 @@ export default function Booking() {
     try {
       const resaId = await reserverCreneau(choisi.id, presta.id)
       await confirmerReservation(resaId)
-      notifier('confirmation', resaId) // email best-effort (client + Adam)
+      notifier('confirmation', resaId)
       setConfirme(true)
-    } catch (e2) {
-      // message lisible pour les cas courants
-      const msg = /indisponible/i.test(e2.message)
-        ? 'Ce créneau vient d’être pris. Choisis-en un autre.'
-        : /profil incomplet/i.test(e2.message)
-          ? 'Complète ton profil avant de réserver.'
-          : e2.message
-      setErr(msg)
+    } catch (e) {
+      setErr(/indisponible/i.test(e.message) ? 'Ce créneau vient d’être pris.' : e.message)
       setChoisi(null)
-      await charger() // rafraîchit les dispos
+      await charger()
     } finally {
       setBusy(false)
     }
   }
 
-  if (confirme) {
-    return (
-      <main className="page">
-        <div className="wrap">
-          <Reveal className={styles.success}>
-            <span className="eyebrow">C’est noté</span>
-            <h1 className={styles.titre}>Rendez-vous confirmé</h1>
-            <p className={styles.successTxt}>
-              {form.prenom || 'À très vite'}, ta <strong>{presta.nom.toLowerCase()}</strong> est
-              réservée le <strong>{libelleJour(choisi.datetime_debut)}</strong> à{' '}
-              <strong>{heure(choisi.datetime_debut)}</strong>.
-            </p>
-            <p className={styles.note}>
-              Retrouve ce rendez-vous dans « Mon espace », où tu pourras l’annuler jusqu’à 2h avant.
-            </p>
-            <div className={styles.calLinks}>
-              <a
-                href={googleCalUrl(
-                  choisi.datetime_debut,
-                  choisi.datetime_fin || new Date(new Date(choisi.datetime_debut).getTime() + 30 * 60000)
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.calLink}
-              >
-                + Google Agenda
-              </a>
-              <a
-                href={icsDataUri(
-                  choisi.datetime_debut,
-                  choisi.datetime_fin || new Date(new Date(choisi.datetime_debut).getTime() + 30 * 60000)
-                )}
-                download="rdv-barber95.ics"
-                className={styles.calLink}
-              >
-                + Apple / .ics
-              </a>
-            </div>
-            <div className={styles.actions}>
-              <MagneticButton
-                variant="ghost"
-                onClick={() => {
-                  setConfirme(false)
-                  setChoisi(null)
-                  charger()
-                }}
-              >
-                Nouveau créneau
-              </MagneticButton>
-            </div>
-          </Reveal>
-          <Footer />
-        </div>
-      </main>
-    )
+  const fermerSheet = () => {
+    setChoisi(null)
+    setConfirme(false)
   }
+
+  const finSlot = choisi
+    ? choisi.datetime_fin || new Date(new Date(choisi.datetime_debut).getTime() + 30 * 60000)
+    : null
 
   return (
     <main className="page">
       <div className="wrap">
-        <Reveal>
-          <span className="eyebrow">Prendre rendez-vous</span>
-          <h1 className={styles.titre}>Réserver</h1>
-          <p className={styles.intro}>
-            {presta.nom} · {presta.duree_minutes} min ·{' '}
-            <span className={styles.prix}>{presta.prix}€</span>
-          </p>
-        </Reveal>
+        <header className={styles.head}>
+          <h1 className="titrePage">Réserver</h1>
+          <p className={styles.sub}>Choisis ta date et ton créneau</p>
+        </header>
 
         {err && <p className={styles.erreur}>{err}</p>}
 
         {loading ? (
-          <p className={styles.etat}>Chargement des créneaux…</p>
+          <p className={styles.etat}>Chargement…</p>
         ) : jours.length === 0 ? (
           <p className={styles.etat}>
             Aucun créneau ouvert pour le moment. Adam ouvre ses disponibilités chaque semaine —
@@ -188,94 +140,128 @@ export default function Booking() {
           </p>
         ) : (
           <>
-            <Reveal delay={80}>
-              <div className={styles.legendeDispo}>
-                <span>
-                  <i className={styles.pastilleOk} /> disponible
-                </span>
-                <span>
-                  <i className={styles.pastilleOff} /> pris
-                </span>
-              </div>
-            </Reveal>
-
-            <div className={styles.calendrier}>
-              {jours.map((j, ji) => (
-                <Reveal key={j.cle} delay={ji * 70} className={styles.jour}>
-                  <h2 className={styles.jourTitre}>{j.titre}</h2>
-                  <div className={styles.slots}>
-                    {j.slots.map((c) => {
-                      const dispo = c.statut === 'ouvert'
-                      const sel = choisi?.id === c.id
-                      return (
-                        <button
-                          key={c.id}
-                          className={`${styles.slot} ${dispo ? styles.slotOk : styles.slotOff} ${
-                            sel ? styles.slotSel : ''
-                          }`}
-                          disabled={!dispo}
-                          onClick={() => setChoisi(c)}
-                        >
-                          {heure(c.datetime_debut)}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </Reveal>
-              ))}
+            {/* sélecteur de jour horizontal */}
+            <div className={styles.dates}>
+              {jours.map(({ cle }) => {
+                const d = new Date(cle + 'T12:00:00')
+                const actif = cle === jourSel
+                return (
+                  <button
+                    key={cle}
+                    className={`${styles.dateChip} ${actif ? styles.dateActif : ''}`}
+                    onClick={() => {
+                      setJourSel(cle)
+                      setChoisi(null)
+                    }}
+                  >
+                    <span className={styles.dateJ}>{JOURS_COURT[d.getDay()]}</span>
+                    <span className={styles.dateN}>{d.getDate()}</span>
+                  </button>
+                )
+              })}
             </div>
+
+            {/* créneaux */}
+            <Section titre="Matin" slots={slotsDuJour.matin} choisi={choisi} onPick={setChoisi} />
+            <Section
+              titre="Après-midi"
+              slots={slotsDuJour.aprem}
+              choisi={choisi}
+              onPick={setChoisi}
+            />
           </>
         )}
-
-        {/* formulaire sous le calendrier */}
-        {choisi && (
-          <form className={styles.form} onSubmit={valider}>
-            <div className={styles.formHead}>
-              <span className="eyebrow">Créneau choisi</span>
-              <p className={styles.choisiTxt}>
-                {libelleJour(choisi.datetime_debut)} · {heure(choisi.datetime_debut)}
-              </p>
-            </div>
-            {connecte ? (
-              <div className={styles.recap}>
-                <span className={styles.recapLabel}>Au nom de</span>
-                <p className={styles.recapInfo}>
-                  {form.prenom}
-                  {form.tel ? <span className={styles.recapTel}> · {form.tel}</span> : null}
-                </p>
-              </div>
-            ) : (
-              <div className={styles.champs}>
-                <label className={styles.champ}>
-                  <span>Prénom</span>
-                  <input
-                    type="text"
-                    required
-                    value={form.prenom}
-                    onChange={(e) => setForm({ ...form, prenom: e.target.value })}
-                    placeholder="Ton prénom"
-                  />
-                </label>
-                <label className={styles.champ}>
-                  <span>Téléphone</span>
-                  <input
-                    type="tel"
-                    required
-                    value={form.tel}
-                    onChange={(e) => setForm({ ...form, tel: e.target.value })}
-                    placeholder="06 ..."
-                  />
-                </label>
-              </div>
-            )}
-            <MagneticButton type="submit" disabled={busy}>
-              {busy ? 'Réservation…' : 'Confirmer le rendez-vous'}
-            </MagneticButton>
-          </form>
-        )}
-
-        <Footer />
       </div>
+
+      {/* bottom sheet glassmorphism */}
+      {choisi && (
+        <>
+          <div className={styles.scrim} onClick={fermerSheet} />
+          <div className={styles.sheet}>
+            <div className={styles.sheetHead}>
+              <h2 className={styles.sheetTitre}>{confirme ? 'C’est réservé !' : 'Récapitulatif'}</h2>
+              <button className={styles.sheetClose} onClick={fermerSheet} aria-label="Fermer">
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.recap}>
+              <Ligne label="Date" valeur={jourLong(choisi.datetime_debut)} />
+              <Ligne label="Heure" valeur={heure(choisi.datetime_debut)} or />
+              <Ligne label="Prestation" valeur={presta.nom} />
+              <Ligne label="Durée" valeur={`${presta.duree_minutes} min`} />
+              {profile?.prenom && <Ligne label="Au nom de" valeur={profile.prenom} />}
+              <div className={styles.total}>
+                <span>Total</span>
+                <span className={styles.totalPrix}>{presta.prix}€</span>
+              </div>
+            </div>
+
+            {err && <p className={styles.erreur}>{err}</p>}
+
+            {confirme ? (
+              <>
+                <div className={styles.okBtn}>
+                  <IconCheck size={20} /> Rendez-vous confirmé
+                </div>
+                <div className={styles.calLinks}>
+                  <a href={googleCalUrl(choisi.datetime_debut, finSlot)} target="_blank" rel="noreferrer">
+                    + Google Agenda
+                  </a>
+                  <a href={icsDataUri(choisi.datetime_debut, finSlot)} download="rdv-barber95.ics">
+                    + Apple / .ics
+                  </a>
+                </div>
+                <MagneticButton className={styles.confirmBtn} variant="ghost" onClick={() => navigate('/mon-espace')}>
+                  Voir mon rendez-vous
+                </MagneticButton>
+              </>
+            ) : (
+              <MagneticButton className={styles.confirmBtn} disabled={busy} onClick={confirmer}>
+                {busy ? 'Réservation…' : 'Confirmer la réservation'}
+              </MagneticButton>
+            )}
+          </div>
+        </>
+      )}
     </main>
+  )
+}
+
+function Section({ titre, slots, choisi, onPick }) {
+  if (!slots.length) return null
+  return (
+    <section className={styles.sectionSlots}>
+      <h2 className={styles.sectionTitre}>
+        <IconClock size={16} /> {titre}
+      </h2>
+      <div className={styles.grilleSlots}>
+        {slots.map((s) => {
+          const dispo = s.statut === 'ouvert'
+          const sel = choisi?.id === s.id
+          return (
+            <button
+              key={s.id}
+              disabled={!dispo}
+              onClick={() => onPick(s)}
+              className={`${styles.slot} ${sel ? styles.slotSel : ''} ${
+                !dispo ? styles.slotPris : ''
+              }`}
+            >
+              {heure(s.datetime_debut)}
+            </button>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+function Ligne({ label, valeur, or }) {
+  return (
+    <div className={styles.ligne}>
+      <span className={styles.ligneLabel}>{label}</span>
+      <span className={`${styles.ligneVal} ${or ? styles.ligneOr : ''}`}>{valeur}</span>
+    </div>
   )
 }

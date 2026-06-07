@@ -1,24 +1,50 @@
 /* ════════════════════════════════════════════════════════════
-   BARBER95 — Design system global
+   BARBER95 — Design system « Elite Cuts »
+   Noir + or, typographie Inter, coins arrondis, ombres douces.
    ════════════════════════════════════════════════════════════ */
 
 :root {
-  --noir: #1a1a1a;
-  --noir-fond: #111111;
-  --gris-clair: #e8e6e0; /* gris clair chaud */
-  --kaki: #b5a76a; /* accent kaki doré */
-  --kaki-faible: rgba(181, 167, 106, 0.14);
-  --kaki-bord: rgba(181, 167, 106, 0.4);
-  --ligne: #2a2a2a; /* séparateurs fins */
-  --gris-attenue: #6b6862;
+  --bg: #111111;
+  --surface: #1a1a1a;
+  --surface-2: #232323;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-fort: rgba(255, 255, 255, 0.14);
 
-  --syne: 'Syne', sans-serif;
-  --inter: 'Inter', sans-serif;
+  --text: #ffffff;
+  --muted: #8b8b8b;
 
-  --rail: 76px; /* largeur nav verticale desktop */
-  --rail-ouvert: 232px;
+  --gold: #c9a84c;
+  --gold-bright: #e8c766;
+  --gold-faible: rgba(201, 168, 76, 0.14);
+  --gold-bord: rgba(201, 168, 76, 0.45);
+  --gold-grad: linear-gradient(135deg, #e8c766 0%, #c9a84c 100%);
 
-  --t-rapide: 0.2s;
+  --green: #3ddc84;
+  --green-faible: rgba(61, 220, 132, 0.14);
+  --red: #e5564b;
+
+  --inter: 'Inter', -apple-system, system-ui, sans-serif;
+
+  --r-sm: 12px;
+  --r: 16px;
+  --r-lg: 22px;
+  --pill: 999px;
+
+  --shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+  --shadow-gold: 0 8px 24px rgba(201, 168, 76, 0.25);
+
+  --nav-h: 76px; /* hauteur barre du bas */
+
+  /* ── alias rétro-compat (anciens noms → nouvelle palette) ── */
+  --noir: var(--surface);
+  --noir-fond: var(--bg);
+  --gris-clair: var(--text);
+  --gris-attenue: var(--muted);
+  --kaki: var(--gold);
+  --kaki-faible: var(--gold-faible);
+  --kaki-bord: var(--gold-bord);
+  --ligne: var(--line);
+  --syne: var(--inter);
 }
 
 *,
@@ -34,11 +60,11 @@ html {
 }
 
 body {
-  background: var(--noir-fond);
-  color: var(--gris-clair);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--inter);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
@@ -47,12 +73,10 @@ body {
 h1,
 h2,
 h3,
-h4,
-.syne {
-  font-family: var(--syne);
+h4 {
   font-weight: 700;
-  line-height: 1.04;
-  letter-spacing: -0.02em;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 
 a {
@@ -61,11 +85,16 @@ a {
 }
 
 button {
-  font-family: var(--syne);
+  font-family: var(--inter);
   cursor: pointer;
   border: none;
   background: none;
   color: inherit;
+}
+
+input,
+textarea {
+  font-family: var(--inter);
 }
 
 img {
@@ -73,39 +102,64 @@ img {
   max-width: 100%;
 }
 
-/* labels / sur-titres */
+/* sur-titre / label */
 .eyebrow {
-  font-family: var(--syne);
-  font-size: 0.72rem;
+  font-family: var(--inter);
+  font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: var(--kaki);
+  letter-spacing: 0.04em;
+  color: var(--gold);
 }
 
-/* zone de contenu : décalée du rail sur desktop */
+/* ── conteneur des pages : centré, marge pour la barre du bas ── */
 .page {
   min-height: 100vh;
   min-height: 100dvh;
-  /* padding-haut généreux sur mobile pour dégager le burger fixe */
-  padding: 84px 22px 64px;
+  padding: 26px 18px calc(var(--nav-h) + 28px);
 }
 
-@media (min-width: 1025px) {
-  .page {
-    margin-left: var(--rail);
-    padding: 64px 56px 80px;
-  }
-}
-
-/* utilitaire conteneur */
 .wrap {
   width: 100%;
-  max-width: 980px;
+  max-width: 480px;
   margin: 0 auto;
 }
 
-/* respecte les préférences de mouvement réduit */
+/* en-tête de page récurrent : titre + sous-titre */
+.titrePage {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── carte générique ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+}
+
+/* pill / badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--pill);
+}
+.badge-or {
+  color: var(--gold);
+  border: 1px solid var(--gold-bord);
+}
+.badge-vert {
+  color: var(--green);
+  background: var(--green-faible);
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;
@@ -114,6 +168,12 @@ img {
 }
 
 ::selection {
-  background: var(--kaki);
-  color: var(--noir);
+  background: var(--gold);
+  color: #1a1a1a;
+}
+
+/* scrollbars discrètes */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-2) transparent;
 }

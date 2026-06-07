@@ -1,17 +1,30 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import Reveal from '../../components/Reveal/Reveal'
+import { Link, useNavigate } from 'react-router-dom'
 import MagneticButton from '../../components/MagneticButton/MagneticButton'
 import LoginScreen from '../../components/Auth/LoginScreen'
 import Admin from '../Admin/Admin'
-import { Footer } from '../../components/Layout'
+import {
+  IconSettings,
+  IconBell,
+  IconShield,
+  IconHelp,
+  IconStar,
+  IconChevronRight,
+} from '../../components/Icons'
 import { CLIENT_MOCK } from '../../data/mock'
 import { FIDELITE } from '../../config'
 import { useAuth } from '../../context/AuthContext'
 import { getProchainRdv, getHistorique, annulerReservation, notifier } from '../../lib/api'
 import styles from './Account.module.css'
 
+function tierFidelite(points) {
+  if (points >= FIDELITE.objectif) return 'Membre Or'
+  if (points >= 5) return 'Membre Argent'
+  return 'Membre'
+}
+
 export default function Account() {
+  const navigate = useNavigate()
   const { configured, loading, session, user, profile, profileComplete, isAdmin, signOut } =
     useAuth()
   const [rdv, setRdv] = useState(null)
@@ -28,14 +41,8 @@ export default function Account() {
     try {
       setErr(null)
       const [r, h] = await Promise.all([getProchainRdv(user.id), getHistorique(user.id)])
-      setRdv(
-        r
-          ? { id: r.id, datetime_debut: r.creneaux.datetime_debut, prestation: r.prestations?.nom }
-          : null
-      )
-      setHistorique(
-        h.map((x) => ({ id: x.id, date: x.creneaux.datetime_debut, prestation: x.prestations?.nom }))
-      )
+      setRdv(r ? { id: r.id, datetime_debut: r.creneaux.datetime_debut, prestation: r.prestations?.nom } : null)
+      setHistorique(h.map((x) => ({ id: x.id, date: x.creneaux.datetime_debut, prestation: x.prestations?.nom })))
     } catch (e) {
       setErr(e.message)
     } finally {
@@ -47,7 +54,7 @@ export default function Account() {
     charger()
   }, [charger])
 
-  // ── États auth ──
+  // ── états auth ──
   if (configured) {
     if (loading) return <div className={styles.loader}>Chargement…</div>
     if (!session)
@@ -62,41 +69,43 @@ export default function Account() {
       return (
         <main className="page">
           <div className="wrap">
-            <span className="eyebrow">Dernière étape</span>
-            <h1 className={styles.titre}>Profil incomplet</h1>
-            <p className={styles.vide}>Complète ton prénom et ton numéro pour activer ton espace.</p>
-            <p style={{ marginTop: 24 }}>
-              <Link to="/profil">
-                <MagneticButton>Compléter mon profil</MagneticButton>
-              </Link>
+            <h1 className="titrePage">Profil incomplet</h1>
+            <p className={styles.muted} style={{ margin: '12px 0 24px' }}>
+              Complète ton prénom et ton numéro pour activer ton espace.
             </p>
+            <Link to="/profil">
+              <MagneticButton>Compléter mon profil</MagneticButton>
+            </Link>
           </div>
         </main>
       )
   }
 
-  // ── Données (réelles si connecté, mock sinon) ──
+  // ── données ──
   const prenom = configured ? profile.prenom : CLIENT_MOCK.prenom
+  const email = configured ? user?.email : 'demo@barber95.fr'
   const points = configured ? profile.points_fidelite ?? 0 : CLIENT_MOCK.points_fidelite
+  const initiales = (prenom || 'C').slice(0, 2).toUpperCase()
+
   const rdvAffiche = configured
     ? rdv
     : annuleDemo
       ? null
-      : {
-          id: 'demo',
-          datetime_debut: CLIENT_MOCK.prochain_rdv.datetime_debut,
-          prestation: CLIENT_MOCK.prochain_rdv.prestation,
-        }
+      : { id: 'demo', datetime_debut: CLIENT_MOCK.prochain_rdv.datetime_debut, prestation: CLIENT_MOCK.prochain_rdv.prestation }
   const histoAffiche = configured
     ? historique
     : CLIENT_MOCK.historique.map((h, i) => ({ id: i, date: h.date, prestation: h.prestation }))
 
+  const ceMois = histoAffiche.filter((h) => {
+    const d = new Date(h.date)
+    const n = new Date()
+    return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear()
+  }).length
+
   const restant = Math.max(FIDELITE.objectif - points, 0)
   const pct = Math.min((points / FIDELITE.objectif) * 100, 100)
 
-  const heuresAvant = rdvAffiche
-    ? (new Date(rdvAffiche.datetime_debut) - Date.now()) / 3600000
-    : 0
+  const heuresAvant = rdvAffiche ? (new Date(rdvAffiche.datetime_debut) - Date.now()) / 3600000 : 0
   const annulable = heuresAvant >= 2
 
   const annuler = async () => {
@@ -107,9 +116,9 @@ export default function Account() {
     setBusy(true)
     setErr(null)
     try {
-      const idAnnule = rdvAffiche.id
-      await annulerReservation(idAnnule)
-      notifier('annulation', idAnnule) // email best-effort
+      const id = rdvAffiche.id
+      await annulerReservation(id)
+      notifier('annulation', id)
       await charger()
     } catch (e) {
       setErr(/2h/.test(e.message) ? 'Annulation impossible à moins de 2h.' : e.message)
@@ -121,45 +130,47 @@ export default function Account() {
   return (
     <main className="page">
       <div className="wrap">
-        <Reveal>
-          <span className="eyebrow">Connecté · {prenom}</span>
-          <div className={styles.entete}>
-            <h1 className={styles.titre}>Mon espace</h1>
-            {configured && session && (
-              <button className={styles.deco} onClick={signOut}>
-                Se déconnecter
-              </button>
-            )}
-          </div>
-        </Reveal>
+        <header className={styles.head}>
+          <h1 className="titrePage">Mon profil</h1>
+          {configured && session && (
+            <button className={styles.gear} onClick={signOut} aria-label="Se déconnecter">
+              <IconSettings size={20} />
+            </button>
+          )}
+        </header>
 
         {err && <p className={styles.erreur}>{err}</p>}
 
-        {/* fidélité */}
-        <Reveal delay={70} className={styles.bloc}>
-          <div className={styles.blocHead}>
-            <h2 className={styles.h2}>Fidélité</h2>
-            <span className={styles.fidScore}>
-              {points}/{FIDELITE.objectif}
-            </span>
+        {/* carte profil */}
+        <section className={styles.profil}>
+          <div className={styles.profTop}>
+            <div className={styles.avatar}>{initiales}</div>
+            <div className={styles.profInfo}>
+              <p className={styles.profNom}>{prenom}</p>
+              <p className={styles.profMail}>{email}</p>
+              <span className="badge badge-or">{tierFidelite(points)}</span>
+            </div>
+          </div>
+          <div className={styles.stats}>
+            <Stat num={histoAffiche.length} label="Coupes" />
+            <Stat num={ceMois} label="Ce mois" />
+            <Stat num={`${points}/${FIDELITE.objectif}`} label="Fidélité" or />
           </div>
           <div className={styles.barre}>
             <div className={styles.barreFill} style={{ width: `${pct}%` }} />
           </div>
           <p className={styles.fidTxt}>
-            {restant > 0
-              ? `Encore ${restant} coupe${restant > 1 ? 's' : ''} avant une offerte.`
-              : '🎉 Une coupe offerte t’attend !'}
+            {restant > 0 ? `Encore ${restant} coupe${restant > 1 ? 's' : ''} avant une offerte 🎁` : '🎉 Une coupe offerte t’attend !'}
           </p>
-        </Reveal>
+        </section>
 
         {/* prochain RDV */}
-        <Reveal delay={140} className={styles.bloc}>
-          <h2 className={styles.h2}>Prochain rendez-vous</h2>
-          {chargement ? (
-            <p className={styles.vide}>Chargement…</p>
-          ) : rdvAffiche ? (
-            <div className={styles.rdv}>
+        <h2 className={styles.section}>Prochain rendez-vous</h2>
+        {chargement ? (
+          <p className={styles.muted}>Chargement…</p>
+        ) : rdvAffiche ? (
+          <div className={styles.rdv}>
+            <div className={styles.rdvHead}>
               <div>
                 <p className={styles.rdvDate}>
                   {new Date(rdvAffiche.datetime_debut).toLocaleDateString('fr-FR', {
@@ -169,54 +180,86 @@ export default function Account() {
                   })}
                 </p>
                 <p className={styles.rdvHeure}>
-                  {new Date(rdvAffiche.datetime_debut).toLocaleTimeString('fr-FR', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  {new Date(rdvAffiche.datetime_debut).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                   {rdvAffiche.prestation ? ` · ${rdvAffiche.prestation}` : ''}
                 </p>
               </div>
-              <div className={styles.rdvAction}>
-                <MagneticButton variant="ghost" disabled={!annulable || busy} onClick={annuler}>
-                  {busy ? 'Annulation…' : 'Annuler'}
-                </MagneticButton>
-                {!annulable && (
-                  <span className={styles.bloque}>
-                    Moins de 2h avant — contacte Adam directement.
-                  </span>
-                )}
-              </div>
+              <span className="badge badge-vert">Confirmé</span>
             </div>
-          ) : (
-            <p className={styles.vide}>Aucun rendez-vous à venir.</p>
-          )}
-        </Reveal>
+            <button
+              className={styles.annuler}
+              disabled={!annulable || busy}
+              onClick={annuler}
+            >
+              {busy ? 'Annulation…' : annulable ? 'Annuler' : 'Annulation impossible (<2h)'}
+            </button>
+          </div>
+        ) : (
+          <div className={styles.vide}>
+            <p className={styles.muted}>Aucun rendez-vous à venir.</p>
+            <MagneticButton className={styles.videCta} onClick={() => navigate('/reserver')}>
+              Réserver
+            </MagneticButton>
+          </div>
+        )}
 
         {/* historique */}
-        <Reveal delay={210} className={styles.bloc}>
-          <h2 className={styles.h2}>Historique</h2>
-          {histoAffiche.length === 0 ? (
-            <p className={styles.vide}>Aucune coupe pour le moment.</p>
-          ) : (
-            <ul className={styles.histo}>
-              {histoAffiche.map((h) => (
-                <li key={h.id}>
-                  <span>
-                    {new Date(h.date).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </span>
-                  <span className={styles.histoPresta}>{h.prestation || 'Coupe'}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Reveal>
+        <h2 className={styles.section}>Historique</h2>
+        {histoAffiche.length === 0 ? (
+          <p className={styles.muted}>Aucune coupe pour le moment.</p>
+        ) : (
+          <div className={styles.histo}>
+            {histoAffiche.map((h) => (
+              <div key={h.id} className={styles.histoItem}>
+                <div>
+                  <p className={styles.histoPresta}>{h.prestation || 'Coupe'}</p>
+                  <p className={styles.histoDate}>
+                    {new Date(h.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
+                </div>
+                <button className={styles.rebook} onClick={() => navigate('/reserver')}>
+                  Re-book
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
-        <Footer />
+        {/* compte */}
+        <h2 className={styles.section}>Compte</h2>
+        <div className={styles.menu}>
+          <Link to="/avis" className={styles.menuItem}>
+            <span className={styles.menuIco}><IconStar size={18} /></span>
+            <span className={styles.menuLbl}>Mes avis</span>
+            <IconChevronRight size={18} />
+          </Link>
+          <Link to="/confidentialite" className={styles.menuItem}>
+            <span className={styles.menuIco}><IconShield size={18} /></span>
+            <span className={styles.menuLbl}>Confidentialité</span>
+            <IconChevronRight size={18} />
+          </Link>
+          <Link to="/mentions-legales" className={styles.menuItem}>
+            <span className={styles.menuIco}><IconHelp size={18} /></span>
+            <span className={styles.menuLbl}>Mentions légales</span>
+            <IconChevronRight size={18} />
+          </Link>
+        </div>
+
+        {configured && session && (
+          <button className={styles.signout} onClick={signOut}>
+            Se déconnecter
+          </button>
+        )}
       </div>
     </main>
+  )
+}
+
+function Stat({ num, label, or }) {
+  return (
+    <div className={styles.stat}>
+      <span className={`${styles.statNum} ${or ? styles.statOr : ''}`}>{num}</span>
+      <span className={styles.statLbl}>{label}</span>
+    </div>
   )
 }

@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react'
-import Reveal from '../../components/Reveal/Reveal'
-import { Footer } from '../../components/Layout'
+import { IconStar } from '../../components/Icons'
 import { AVIS } from '../../data/mock'
 import { configured } from '../../lib/supabase'
 import { getAvisVisibles } from '../../lib/api'
 import styles from './Reviews.module.css'
 
-function Etoiles({ note }) {
+function Etoiles({ note, size = 14 }) {
   return (
     <span className={styles.etoiles} aria-label={`${note} sur 5`}>
       {[1, 2, 3, 4, 5].map((n) => (
         <span key={n} className={n <= note ? styles.pleine : styles.vide}>
-          ★
+          <IconStar size={size} fill={n <= note} />
         </span>
       ))}
     </span>
@@ -19,7 +18,6 @@ function Etoiles({ note }) {
 }
 
 export default function Reviews() {
-  // En démo (sans Supabase) on montre les avis mockés ; sinon, la vraie base.
   const [avis, setAvis] = useState(configured ? [] : AVIS.filter((a) => a.visible))
   const [chargement, setChargement] = useState(configured)
 
@@ -36,10 +34,10 @@ export default function Reviews() {
   return (
     <main className="page">
       <div className="wrap">
-        <Reveal>
-          <span className="eyebrow">Ils sont passés</span>
-          <h1 className={styles.titre}>Avis</h1>
-        </Reveal>
+        <header className={styles.head}>
+          <h1 className="titrePage">Avis</h1>
+          <p className={styles.sub}>Ils sont passés chez BARBER95</p>
+        </header>
 
         {chargement ? (
           <p className={styles.etat}>Chargement…</p>
@@ -49,19 +47,17 @@ export default function Reviews() {
           </p>
         ) : (
           <>
-            <Reveal delay={80} className={styles.moyenne}>
+            <section className={styles.moyenne}>
               <span className={styles.note}>{moyenne.toFixed(1)}</span>
               <div className={styles.moyenneInfo}>
-                <Etoiles note={Math.round(moyenne)} />
-                <span className={styles.compte}>
-                  {avis.length} avis
-                </span>
+                <Etoiles note={Math.round(moyenne)} size={18} />
+                <span className={styles.compte}>{avis.length} avis</span>
               </div>
-            </Reveal>
+            </section>
 
             <div className={styles.grille}>
-              {avis.map((a, i) => (
-                <Reveal key={a.id} delay={i * 80} className={styles.carte}>
+              {avis.map((a) => (
+                <article key={a.id} className={styles.carte}>
                   <div className={styles.carteTop}>
                     <span className={styles.prenom}>{a.prenom || 'Client'}</span>
                     <Etoiles note={a.note} />
@@ -74,13 +70,11 @@ export default function Reviews() {
                       year: 'numeric',
                     })}
                   </span>
-                </Reveal>
+                </article>
               ))}
             </div>
           </>
         )}
-
-        <Footer />
       </div>
     </main>
   )
