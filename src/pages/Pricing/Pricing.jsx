@@ -9,6 +9,8 @@ import { getPrestation, updatePrestation } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import styles from './Pricing.module.css'
 
+const DESC_DEFAUT = 'Coupe homme, finitions soignées au millimètre.'
+
 export default function Pricing() {
   const navigate = useNavigate()
   const { isAdmin } = useAuth()
@@ -26,7 +28,7 @@ export default function Pricing() {
       nom: presta.nom,
       prix: presta.prix,
       duree_minutes: presta.duree_minutes,
-      description: presta.description || '',
+      description: presta.description || DESC_DEFAUT,
     })
     setEdit(true)
   }
@@ -103,9 +105,7 @@ export default function Pricing() {
               <h2 className={styles.nom}>{presta.nom}</h2>
               <span className="badge badge-or">Populaire</span>
             </div>
-            <p className={styles.desc}>
-              {presta.description || 'Coupe homme, finitions soignées au millimètre.'}
-            </p>
+            <p className={styles.desc}>{presta.description || DESC_DEFAUT}</p>
             <div className={styles.cardBas}>
               <span className={styles.prix}>{presta.prix}€</span>
               <span className={styles.duree}>

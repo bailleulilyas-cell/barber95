@@ -107,6 +107,11 @@
   flex-direction: column;
   gap: 6px;
   flex: 1;
+  min-width: 0;
+}
+.champ input,
+.champ textarea {
+  width: 100%;
 }
 .champ span {
   font-size: 0.74rem;
