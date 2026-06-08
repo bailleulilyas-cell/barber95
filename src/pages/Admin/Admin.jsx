@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Reveal from '../../components/Reveal/Reveal'
-import { Footer } from '../../components/Layout'
-import { useAuth } from '../../context/AuthContext'
 import {
   getReservationsAdmin,
   getTousAvis,
@@ -11,8 +8,12 @@ import {
   setAvisVisible,
   notifier,
 } from '../../lib/api'
+import { useAuth } from '../../context/AuthContext'
+import { IconCalendar, IconStar, IconClock } from '../../components/Icons'
+import { RESERVATIONS_ADMIN } from '../../data/mock'
+import CreneauxManager from './CreneauxManager'
+import styles from './Admin.module.css'
 
-// actions composites : action en base + email best-effort
 const terminerEtNotifier = async (id) => {
   await marquerTerminee(id)
   notifier('avis', id)
@@ -21,12 +22,9 @@ const annulerEtNotifier = async (id) => {
   await annulerReservation(id)
   notifier('annulation', id)
 }
-import { RESERVATIONS_ADMIN } from '../../data/mock'
-import CreneauxManager from './CreneauxManager'
-import styles from './Admin.module.css'
 
 function dateLisible(iso) {
-  return new Date(iso).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+  return new Date(iso).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
 }
 function heure(iso) {
   return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
@@ -40,7 +38,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(configured)
   const [err, setErr] = useState(null)
   const [busy, setBusy] = useState(null)
-  const [gestionOuverte, setGestionOuverte] = useState(false)
+  const [gestion, setGestion] = useState(false)
 
   const charger = useCallback(async () => {
     if (!configured) return
@@ -60,10 +58,7 @@ export default function Admin() {
     charger()
   }, [charger])
 
-  // ── Mode démo (Supabase non configuré) : aperçu mocké ──
-  if (!configured) {
-    return <AdminDemo />
-  }
+  if (!configured) return <AdminDemo />
 
   const action = async (fn, id) => {
     setBusy(id)
@@ -84,23 +79,25 @@ export default function Admin() {
   const passees = resas.filter(
     (r) => new Date(r.creneaux.datetime_debut).getTime() < maintenant && r.statut !== 'terminee'
   )
-  const avisAModerer = avis.filter((a) => a.visible).length
+  const avisVisibles = avis.filter((a) => a.visible).length
 
   return (
     <main className="page">
       <div className="wrap">
-        <Reveal>
-          <span className="eyebrow">Espace privé · Adam</span>
-          <h1 className={styles.titre}>Dashboard</h1>
-        </Reveal>
+        <header className={styles.head}>
+          <div>
+            <span className={styles.eyebrow}>Espace Adam</span>
+            <h1 className={styles.titre}>Tableau de bord</h1>
+          </div>
+        </header>
 
         {err && <p className={styles.erreur}>{err}</p>}
 
-        {/* stats + gestion créneaux */}
-        <Reveal delay={80} className={styles.stats}>
+        {/* stats */}
+        <div className={styles.stats}>
           <div className={styles.stat}>
             <span className={styles.statNum}>{aVenir.length}</span>
-            <span className={styles.statLbl}>RDV à venir</span>
+            <span className={styles.statLbl}>À venir</span>
           </div>
           <div className={styles.stat}>
             <span className={styles.statNum}>{passees.length}</span>
@@ -110,30 +107,32 @@ export default function Admin() {
             <span className={styles.statNum}>{avis.length}</span>
             <span className={styles.statLbl}>Avis</span>
           </div>
-          <button className={styles.gerer} onClick={() => setGestionOuverte(true)}>
+        </div>
+
+        {/* actions rapides */}
+        <div className={styles.quick}>
+          <button className={styles.quickBtn} onClick={() => setGestion(true)}>
+            <IconCalendar size={20} />
             Gérer mes créneaux
           </button>
-          <Link className={styles.gererSecond} to="/galerie">
-            Gérer la galerie
+          <Link className={styles.quickGhost} to="/galerie">
+            <IconStar size={20} />
+            Galerie
           </Link>
-        </Reveal>
+        </div>
 
         {loading ? (
-          <p className={styles.vide}>Chargement…</p>
+          <p className={styles.muted}>Chargement…</p>
         ) : (
           <>
-            {/* à clôturer (passés non terminés) */}
             {passees.length > 0 && (
               <>
-                <Reveal delay={120}>
-                  <h2 className={styles.h2}>À clôturer</h2>
-                </Reveal>
+                <h2 className={styles.section}>À clôturer</h2>
                 <div className={styles.liste}>
-                  {passees.map((r, i) => (
-                    <LigneResa
+                  {passees.map((r) => (
+                    <Resa
                       key={r.id}
                       r={r}
-                      i={i}
                       busy={busy === r.id}
                       onTerminer={() => action(terminerEtNotifier, r.id)}
                       onAnnuler={() => action(annulerEtNotifier, r.id)}
@@ -143,19 +142,15 @@ export default function Admin() {
               </>
             )}
 
-            {/* à venir */}
-            <Reveal delay={160}>
-              <h2 className={styles.h2}>Réservations à venir</h2>
-            </Reveal>
+            <h2 className={styles.section}>Réservations à venir</h2>
             {aVenir.length === 0 ? (
-              <p className={styles.vide}>Aucune réservation à venir.</p>
+              <p className={styles.muted}>Aucune réservation à venir.</p>
             ) : (
               <div className={styles.liste}>
-                {aVenir.map((r, i) => (
-                  <LigneResa
+                {aVenir.map((r) => (
+                  <Resa
                     key={r.id}
                     r={r}
-                    i={i}
                     busy={busy === r.id}
                     onAnnuler={() => action(annulerEtNotifier, r.id)}
                   />
@@ -163,46 +158,44 @@ export default function Admin() {
               </div>
             )}
 
-            {/* modération des avis */}
-            <Reveal delay={200}>
-              <h2 className={styles.h2}>
-                Avis {avisAModerer > 0 && <span className={styles.badge}>{avisAModerer} visibles</span>}
-              </h2>
-            </Reveal>
+            <h2 className={styles.section}>
+              Avis {avisVisibles > 0 && <span className="badge badge-or">{avisVisibles} visibles</span>}
+            </h2>
             {avis.length === 0 ? (
-              <p className={styles.vide}>Aucun avis pour le moment.</p>
+              <p className={styles.muted}>Aucun avis.</p>
             ) : (
               <div className={styles.liste}>
-                {avis.map((a, i) => (
-                  <Reveal key={a.id} delay={i * 60} className={styles.avisLigne}>
+                {avis.map((a) => (
+                  <div key={a.id} className={styles.avis}>
                     <div className={styles.avisInfo}>
                       <span className={styles.avisPrenom}>
-                        {a.prenom || '—'} · {'★'.repeat(a.note)}
-                        <span className={styles.avisVides}>{'★'.repeat(5 - a.note)}</span>
+                        {a.prenom || '—'}
+                        <span className={styles.avisStars}>
+                          {'★'.repeat(a.note)}
+                          <span className={styles.avisVides}>{'★'.repeat(5 - a.note)}</span>
+                        </span>
                       </span>
                       {a.commentaire && <span className={styles.avisCom}>{a.commentaire}</span>}
                     </div>
                     <button
-                      className={styles.btnT}
+                      className={styles.avisBtn}
                       disabled={busy === a.id}
                       onClick={() => action(() => setAvisVisible(a.id, !a.visible), a.id)}
                     >
                       {a.visible ? 'Masquer' : 'Afficher'}
                     </button>
-                  </Reveal>
+                  </div>
                 ))}
               </div>
             )}
           </>
         )}
-
-        <Footer />
       </div>
 
-      {gestionOuverte && (
+      {gestion && (
         <CreneauxManager
           onClose={() => {
-            setGestionOuverte(false)
+            setGestion(false)
             charger()
           }}
         />
@@ -211,58 +204,52 @@ export default function Admin() {
   )
 }
 
-// ── Une ligne de réservation ──
-function LigneResa({ r, i, busy, onTerminer, onAnnuler }) {
+function Resa({ r, busy, onTerminer, onAnnuler }) {
   return (
-    <Reveal delay={i * 60} className={styles.ligne}>
-      <span className={styles.heure}>{heure(r.creneaux.datetime_debut)}</span>
-      <div className={styles.client}>
-        <span className={styles.prenom}>{r.clients?.prenom || 'Client'}</span>
-        <span className={styles.tel}>
-          {dateLisible(r.creneaux.datetime_debut)}
-          {r.clients?.tel ? ` · ${r.clients.tel}` : ''}
-        </span>
+    <div className={styles.resa}>
+      <div className={styles.resaHeure}>
+        <span className={styles.resaH}>{heure(r.creneaux.datetime_debut)}</span>
+        <span className={styles.resaJ}>{dateLisible(r.creneaux.datetime_debut)}</span>
       </div>
-      <span className={`${styles.statut} ${styles['s_' + r.statut]}`}>{LABELS[r.statut]}</span>
-      <div className={styles.actions}>
+      <div className={styles.resaInfo}>
+        <span className={styles.resaNom}>{r.clients?.prenom || 'Client'}</span>
+        {r.clients?.tel && <a className={styles.resaTel} href={`tel:${r.clients.tel}`}>{r.clients.tel}</a>}
+      </div>
+      <div className={styles.resaActions}>
         {onTerminer && (
-          <button className={styles.btnT} disabled={busy} onClick={onTerminer}>
-            Marquer terminé
-          </button>
+          <button className={styles.btnOk} disabled={busy} onClick={onTerminer}>Terminé</button>
         )}
         {onAnnuler && (
-          <button className={styles.btnA} disabled={busy} onClick={onAnnuler}>
-            Annuler
-          </button>
+          <button className={styles.btnNo} disabled={busy} onClick={onAnnuler}>Annuler</button>
         )}
       </div>
-    </Reveal>
+    </div>
   )
 }
 
-// ── Aperçu en mode démo (sans Supabase) ──
 function AdminDemo() {
   return (
     <main className="page">
       <div className="wrap">
-        <span className="eyebrow">Espace privé · Adam</span>
-        <h1 className={styles.titre}>Dashboard</h1>
-        <p className={styles.erreur}>
-          ⚠︎ Mode démo — Supabase non configuré. Voici un aperçu avec des données fictives.
+        <span className={styles.eyebrow}>Espace Adam</span>
+        <h1 className={styles.titre}>Tableau de bord</h1>
+        <p className={styles.erreur} style={{ marginTop: 16 }}>
+          Mode démo — Supabase non configuré, données fictives.
         </p>
         <div className={styles.liste}>
           {RESERVATIONS_ADMIN.map((r) => (
-            <div key={r.id} className={styles.ligne}>
-              <span className={styles.heure}>{r.heure}</span>
-              <div className={styles.client}>
-                <span className={styles.prenom}>{r.prenom}</span>
-                <span className={styles.tel}>{r.tel}</span>
+            <div key={r.id} className={styles.resa}>
+              <div className={styles.resaHeure}>
+                <span className={styles.resaH}>{r.heure}</span>
               </div>
-              <span className={styles.statut}>{r.statut}</span>
+              <div className={styles.resaInfo}>
+                <span className={styles.resaNom}>{r.prenom}</span>
+                <span className={styles.resaTel}>{r.tel}</span>
+              </div>
+              <span className="badge badge-or">{r.statut}</span>
             </div>
           ))}
         </div>
-        <Footer />
       </div>
     </main>
   )

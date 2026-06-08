@@ -14,7 +14,13 @@ import {
 import { CLIENT_MOCK } from '../../data/mock'
 import { FIDELITE } from '../../config'
 import { useAuth } from '../../context/AuthContext'
-import { getProchainRdv, getHistorique, annulerReservation, notifier } from '../../lib/api'
+import {
+  getProchainRdv,
+  getHistorique,
+  annulerReservation,
+  notifier,
+  getReservationsAvisLaisses,
+} from '../../lib/api'
 import styles from './Account.module.css'
 
 function tierFidelite(points) {
@@ -29,6 +35,7 @@ export default function Account() {
     useAuth()
   const [rdv, setRdv] = useState(null)
   const [historique, setHistorique] = useState([])
+  const [avisLaisses, setAvisLaisses] = useState(new Set())
   const [chargement, setChargement] = useState(configured)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
@@ -40,9 +47,14 @@ export default function Account() {
     if (!clientPret) return
     try {
       setErr(null)
-      const [r, h] = await Promise.all([getProchainRdv(user.id), getHistorique(user.id)])
+      const [r, h, vus] = await Promise.all([
+        getProchainRdv(user.id),
+        getHistorique(user.id),
+        getReservationsAvisLaisses(user.id),
+      ])
       setRdv(r ? { id: r.id, datetime_debut: r.creneaux.datetime_debut, prestation: r.prestations?.nom } : null)
       setHistorique(h.map((x) => ({ id: x.id, date: x.creneaux.datetime_debut, prestation: x.prestations?.nom })))
+      setAvisLaisses(vus)
     } catch (e) {
       setErr(e.message)
     } finally {
@@ -209,19 +221,29 @@ export default function Account() {
           <p className={styles.muted}>Aucune coupe pour le moment.</p>
         ) : (
           <div className={styles.histo}>
-            {histoAffiche.map((h) => (
-              <div key={h.id} className={styles.histoItem}>
-                <div>
-                  <p className={styles.histoPresta}>{h.prestation || 'Coupe'}</p>
-                  <p className={styles.histoDate}>
-                    {new Date(h.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                  </p>
+            {histoAffiche.map((h) => {
+              const avisOk = configured && !avisLaisses.has(h.id)
+              return (
+                <div key={h.id} className={styles.histoItem}>
+                  <div>
+                    <p className={styles.histoPresta}>{h.prestation || 'Coupe'}</p>
+                    <p className={styles.histoDate}>
+                      {new Date(h.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
+                  <div className={styles.histoActions}>
+                    {avisOk && (
+                      <Link className={styles.avisLink} to={`/avis/nouveau?r=${h.id}`}>
+                        Laisser un avis
+                      </Link>
+                    )}
+                    <button className={styles.rebook} onClick={() => navigate('/reserver')}>
+                      Re-book
+                    </button>
+                  </div>
                 </div>
-                <button className={styles.rebook} onClick={() => navigate('/reserver')}>
-                  Re-book
-                </button>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
 

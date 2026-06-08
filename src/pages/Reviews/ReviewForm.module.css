@@ -46,7 +46,7 @@
 .champ textarea {
   background: var(--noir);
   border: 1px solid var(--ligne);
-  border-radius: 2px;
+  border-radius: var(--r-sm);
   padding: 13px 14px;
   color: var(--gris-clair);
   font-family: var(--inter);

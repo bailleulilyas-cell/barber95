@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import MagneticButton from '../../components/MagneticButton/MagneticButton'
+import Editable from '../../components/Editable/Editable'
 import { IconBell, IconStar, IconClock, IconChevronRight } from '../../components/Icons'
 import { SITE, PRESTATIONS } from '../../config'
 import { configured } from '../../lib/supabase'
@@ -68,6 +69,10 @@ export default function Home() {
             <IconBell size={20} />
           </Link>
         </header>
+
+        <Editable cle="home.tagline" as="p" className={styles.tagline}>
+          Coiffeur · Val-d’Oise · 95
+        </Editable>
 
         {/* carte Quick Book */}
         <section className={styles.quick}>

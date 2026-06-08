@@ -79,3 +79,65 @@
 .cta {
   width: 100%;
 }
+
+.modif {
+  margin-top: 16px;
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--r-sm);
+  background: var(--gold-faible);
+  border: 1px solid var(--gold-bord);
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.editCard {
+  background: var(--surface);
+  border: 1px solid var(--gold-bord);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.champ span {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.champ input,
+.champ textarea {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 12px;
+  color: var(--text);
+  font-size: 1rem;
+  resize: vertical;
+}
+.champ input:focus,
+.champ textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.champRow {
+  display: flex;
+  gap: 12px;
+}
+.editBtns {
+  display: flex;
+  gap: 10px;
+}
+.editBtns > * {
+  flex: 1;
+}

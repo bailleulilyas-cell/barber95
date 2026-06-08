@@ -1,21 +1,39 @@
 import { NavLink } from 'react-router-dom'
-import { IconHome, IconScissors, IconCalendar, IconUser } from '../Icons'
+import { useAuth } from '../../context/AuthContext'
+import {
+  IconHome,
+  IconScissors,
+  IconCalendar,
+  IconUser,
+  IconImage,
+} from '../Icons'
 import styles from './Nav.module.css'
 
-const TABS = [
+const TABS_CLIENT = [
   { to: '/', label: 'Accueil', Icon: IconHome, end: true },
   { to: '/tarifs', label: 'Tarifs', Icon: IconScissors },
   { to: '/reserver', label: 'Réserver', Icon: IconCalendar },
   { to: '/mon-espace', label: 'Profil', Icon: IconUser },
 ]
 
+const TABS_ADMIN = [
+  { to: '/admin', label: 'Dashboard', Icon: IconCalendar },
+  { to: '/', label: 'Site', Icon: IconHome, end: true },
+  { to: '/tarifs', label: 'Tarifs', Icon: IconScissors },
+  { to: '/galerie', label: 'Galerie', Icon: IconImage },
+]
+
 export default function Nav() {
+  const { configured, isAdmin } = useAuth()
+  const admin = configured && isAdmin
+  const tabs = admin ? TABS_ADMIN : TABS_CLIENT
+
   return (
-    <nav className={styles.bar} aria-label="Navigation principale">
+    <nav className={`${styles.bar} ${admin ? styles.barAdmin : ''}`} aria-label="Navigation">
       <div className={styles.inner}>
-        {TABS.map(({ to, label, Icon, end }) => (
+        {tabs.map(({ to, label, Icon, end }) => (
           <NavLink
-            key={to}
+            key={to + label}
             to={to}
             end={end}
             className={({ isActive }) => `${styles.tab} ${isActive ? styles.actif : ''}`}
@@ -28,6 +46,7 @@ export default function Nav() {
           </NavLink>
         ))}
       </div>
+      {admin && <span className={styles.adminTag}>ADMIN</span>}
     </nav>
   )
 }

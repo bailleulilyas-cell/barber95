@@ -222,18 +222,37 @@
   font-size: 0.84rem;
   margin-top: 2px;
 }
+.histoActions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
 .rebook {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--gold);
   border: 1px solid var(--gold-bord);
   border-radius: var(--pill);
-  padding: 8px 14px;
+  padding: 7px 13px;
+  white-space: nowrap;
 }
 .rebook:active {
+  transform: scale(0.95);
+}
+.avisLink {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  background: var(--gold-grad);
+  border-radius: var(--pill);
+  padding: 7px 13px;
+  white-space: nowrap;
+}
+.avisLink:active {
   transform: scale(0.95);
 }
 

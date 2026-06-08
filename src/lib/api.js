@@ -22,6 +22,38 @@ export async function getPrestation() {
   return data
 }
 
+// Admin : modifier la prestation (nom, prix, durée, description).
+export async function updatePrestation(id, fields) {
+  const { error } = await client().from('prestations').update(fields).eq('id', id)
+  if (error) throw error
+}
+
+// ── Contenu éditable du site ──
+export async function getContenus() {
+  const { data, error } = await client().from('site_contenu').select('cle, valeur')
+  if (error) throw error
+  const map = {}
+  ;(data || []).forEach((r) => (map[r.cle] = r.valeur))
+  return map
+}
+
+export async function setContenu(cle, valeur) {
+  const { error } = await client()
+    .from('site_contenu')
+    .upsert({ cle, valeur, updated_at: new Date().toISOString() }, { onConflict: 'cle' })
+  if (error) throw error
+}
+
+// Réservations terminées du client ayant déjà un avis (pour masquer le bouton).
+export async function getReservationsAvisLaisses(clientId) {
+  const { data, error } = await client()
+    .from('avis')
+    .select('reservation_id')
+    .eq('client_id', clientId)
+  if (error) throw error
+  return new Set((data || []).map((a) => a.reservation_id))
+}
+
 // ════════════════════ CRÉNEAUX ════════════════════
 
 // Créneaux ouverts à venir (côté client, page Réserver).

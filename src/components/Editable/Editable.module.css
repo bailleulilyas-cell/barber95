@@ -1,0 +1,28 @@
+.editable {
+  position: relative;
+  cursor: text;
+  border-radius: 4px;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.editable:hover {
+  background: var(--gold-faible);
+  box-shadow: 0 0 0 1px var(--gold-bord);
+}
+.pen {
+  font-size: 0.7em;
+  margin-left: 6px;
+  color: var(--gold);
+  opacity: 0.5;
+  vertical-align: middle;
+}
+.editable:hover .pen {
+  opacity: 1;
+}
+
+.edition {
+  outline: none;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 2px var(--gold);
+  padding: 0 4px;
+}
