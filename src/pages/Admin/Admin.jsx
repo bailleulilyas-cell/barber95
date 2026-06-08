@@ -7,8 +7,10 @@ import {
   annulerReservation,
   setAvisVisible,
   notifier,
+  onTableChange,
 } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import { IconCalendar, IconStar, IconClock } from '../../components/Icons'
 import { RESERVATIONS_ADMIN } from '../../data/mock'
 import CreneauxManager from './CreneauxManager'
@@ -33,6 +35,7 @@ const LABELS = { en_attente: 'en attente', confirmee: 'confirmée', terminee: 't
 
 export default function Admin() {
   const { configured } = useAuth()
+  const toast = useToast()
   const [resas, setResas] = useState([])
   const [avis, setAvis] = useState([])
   const [loading, setLoading] = useState(configured)
@@ -58,15 +61,34 @@ export default function Admin() {
     charger()
   }, [charger])
 
+  // temps réel : nouvelle réservation / nouvel avis → dashboard à jour en direct
+  useEffect(() => {
+    if (!configured) return
+    let t
+    const deb = () => {
+      clearTimeout(t)
+      t = setTimeout(charger, 300)
+    }
+    const o1 = onTableChange('reservations', deb)
+    const o2 = onTableChange('avis', deb)
+    return () => {
+      clearTimeout(t)
+      o1()
+      o2()
+    }
+  }, [charger])
+
   if (!configured) return <AdminDemo />
 
-  const action = async (fn, id) => {
+  const action = async (fn, id, msg) => {
     setBusy(id)
     try {
       await fn(id)
       await charger()
+      if (msg) toast(msg)
     } catch (e) {
       setErr(e.message)
+      toast(e.message || 'Erreur', 'error')
     } finally {
       setBusy(null)
     }
@@ -134,8 +156,8 @@ export default function Admin() {
                       key={r.id}
                       r={r}
                       busy={busy === r.id}
-                      onTerminer={() => action(terminerEtNotifier, r.id)}
-                      onAnnuler={() => action(annulerEtNotifier, r.id)}
+                      onTerminer={() => action(terminerEtNotifier, r.id, 'Marqué terminé · avis demandé')}
+                      onAnnuler={() => action(annulerEtNotifier, r.id, 'Réservation annulée')}
                     />
                   ))}
                 </div>
@@ -152,7 +174,7 @@ export default function Admin() {
                     key={r.id}
                     r={r}
                     busy={busy === r.id}
-                    onAnnuler={() => action(annulerEtNotifier, r.id)}
+                    onAnnuler={() => action(annulerEtNotifier, r.id, 'Réservation annulée')}
                   />
                 ))}
               </div>
@@ -180,7 +202,9 @@ export default function Admin() {
                     <button
                       className={styles.avisBtn}
                       disabled={busy === a.id}
-                      onClick={() => action(() => setAvisVisible(a.id, !a.visible), a.id)}
+                      onClick={() =>
+                        action(() => setAvisVisible(a.id, !a.visible), a.id, a.visible ? 'Avis masqué' : 'Avis affiché')
+                      }
                     >
                       {a.visible ? 'Masquer' : 'Afficher'}
                     </button>

@@ -7,6 +7,7 @@ import { PRESTATIONS, FIDELITE } from '../../config'
 import { configured } from '../../lib/supabase'
 import { getPrestation, updatePrestation } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import styles from './Pricing.module.css'
 
 const DESC_DEFAUT = 'Coupe homme, finitions soignées au millimètre.'
@@ -14,6 +15,7 @@ const DESC_DEFAUT = 'Coupe homme, finitions soignées au millimètre.'
 export default function Pricing() {
   const navigate = useNavigate()
   const { isAdmin } = useAuth()
+  const toast = useToast()
   const [presta, setPresta] = useState(PRESTATIONS[0])
   const [edit, setEdit] = useState(false)
   const [form, setForm] = useState(null)
@@ -45,6 +47,9 @@ export default function Pricing() {
       if (configured) await updatePrestation(presta.id, fields)
       setPresta({ ...presta, ...fields })
       setEdit(false)
+      toast('Prestation mise à jour ✓')
+    } catch (e) {
+      toast(e.message || 'Erreur', 'error')
     } finally {
       setBusy(false)
     }

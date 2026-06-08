@@ -62,8 +62,111 @@
 .aide {
   font-family: var(--inter);
   font-size: 0.86rem;
-  color: var(--gris-attenue);
+  color: var(--muted);
   margin: 6px 0 18px;
+}
+
+/* onglets */
+.tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--pill);
+  padding: 4px;
+  margin-bottom: 18px;
+}
+.tab {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--pill);
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.tabOn {
+  background: var(--gold-grad);
+  color: #1a1a1a;
+}
+
+.lbl {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* jours semaine (chips) */
+.joursSemaine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 20px;
+}
+.jourChip {
+  width: 46px;
+  padding: 12px 0;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.jourChipOn {
+  background: var(--gold-grad);
+  border-color: transparent;
+  color: #1a1a1a;
+}
+
+.plage {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.champ select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 12px 10px;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: var(--inter);
+}
+.champ select:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.apercu {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.appliquer {
+  width: 100%;
+  padding: 1em;
+  border-radius: var(--r-sm);
+  background: var(--gold-grad);
+  color: #1a1a1a;
+  font-weight: 800;
+  box-shadow: var(--shadow-gold);
+}
+.appliquer:active {
+  transform: scale(0.98);
+}
+.appliquer:disabled {
+  opacity: 0.5;
 }
 
 .jours {

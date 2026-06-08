@@ -10,6 +10,21 @@ function client() {
   return supabase
 }
 
+// ── Temps réel ──
+// S'abonne aux changements d'une table. Renvoie une fonction de désabonnement.
+export function onTableChange(table, cb) {
+  if (!supabase) return () => {}
+  const ch = supabase
+    .channel(`rt-${table}-${Math.random().toString(36).slice(2)}`)
+    .on('postgres_changes', { event: '*', schema: 'public', table }, cb)
+    .subscribe()
+  return () => {
+    try {
+      supabase.removeChannel(ch)
+    } catch {}
+  }
+}
+
 // ── Prestation unique ──
 export async function getPrestation() {
   const { data, error } = await client()
@@ -101,6 +116,23 @@ export async function ouvrirCreneau(debut) {
 export async function fermerCreneau(id) {
   const { error } = await client().from('creneaux').delete().eq('id', id).eq('statut', 'ouvert')
   if (error) throw error
+}
+
+// Admin : ouvrir plusieurs créneaux d'un coup (semaine-type). Renvoie le nb inséré.
+export async function ajouterCreneauxBulk(debuts) {
+  if (!debuts.length) return 0
+  const rows = debuts.map((d) => {
+    const D = new Date(d)
+    const fin = new Date(D.getTime() + 30 * 60000)
+    return {
+      datetime_debut: D.toISOString(),
+      datetime_fin: fin.toISOString(),
+      statut: 'ouvert',
+    }
+  })
+  const { error } = await client().from('creneaux').insert(rows)
+  if (error) throw error
+  return rows.length
 }
 
 // ════════════════════ RÉSERVATION (client) ════════════════════

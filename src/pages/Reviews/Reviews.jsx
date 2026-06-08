@@ -3,6 +3,7 @@ import { IconStar } from '../../components/Icons'
 import { AVIS } from '../../data/mock'
 import { configured } from '../../lib/supabase'
 import { getAvisVisibles } from '../../lib/api'
+import { SkeletonCard } from '../../components/Skeleton/Skeleton'
 import styles from './Reviews.module.css'
 
 function Etoiles({ note, size = 14 }) {
@@ -40,7 +41,11 @@ export default function Reviews() {
         </header>
 
         {chargement ? (
-          <p className={styles.etat}>Chargement…</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={1} />
+          </div>
         ) : avis.length === 0 ? (
           <p className={styles.etat}>
             Pas encore d’avis. Les premiers retours apparaîtront ici après les premières coupes.

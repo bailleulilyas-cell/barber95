@@ -5,6 +5,7 @@ import MagneticButton from '../../components/MagneticButton/MagneticButton'
 import LoginScreen from '../../components/Auth/LoginScreen'
 import { Footer } from '../../components/Layout'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import {
   getReservationPourAvis,
   avisExistePour,
@@ -14,6 +15,7 @@ import styles from './ReviewForm.module.css'
 
 export default function ReviewForm() {
   const { configured, loading, session, user, profile } = useAuth()
+  const toast = useToast()
   const [params] = useSearchParams()
   const reservationId = params.get('r')
 
@@ -65,6 +67,7 @@ export default function ReviewForm() {
         prenom: profile?.prenom || resa?.clients?.prenom || null,
       })
       setEtat('envoye')
+      toast('Avis publié, merci ! 🙏')
     } catch (e2) {
       setErr(e2.message)
     } finally {

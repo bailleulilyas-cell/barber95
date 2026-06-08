@@ -12,9 +12,11 @@ import {
   reserverCreneau,
   confirmerReservation,
   notifier,
+  onTableChange,
 } from '../../lib/api'
 import { googleCalUrl, icsDataUri } from '../../lib/calendar'
 import Confetti from '../../components/Confetti/Confetti'
+import Skeleton from '../../components/Skeleton/Skeleton'
 import styles from './Booking.module.css'
 
 function celebrer() {
@@ -70,6 +72,20 @@ export default function Booking() {
 
   useEffect(() => {
     charger()
+  }, [charger])
+
+  // temps réel : un créneau pris/ouvert ailleurs se reflète ici en direct
+  useEffect(() => {
+    if (!configured) return
+    let t
+    const off = onTableChange('creneaux', () => {
+      clearTimeout(t)
+      t = setTimeout(charger, 300)
+    })
+    return () => {
+      clearTimeout(t)
+      off()
+    }
   }, [charger])
 
   // jours ayant au moins un créneau, triés
@@ -141,7 +157,19 @@ export default function Booking() {
         {err && <p className={styles.erreur}>{err}</p>}
 
         {loading ? (
-          <p className={styles.etat}>Chargement…</p>
+          <div>
+            <div className={styles.dates}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} w={60} h={64} r={16} />
+              ))}
+            </div>
+            <Skeleton w="35%" h={14} style={{ margin: '6px 0 14px' }} />
+            <div className={styles.grilleSlots}>
+              {Array.from({ length: 9 }).map((_, i) => (
+                <Skeleton key={i} h={46} r={12} />
+              ))}
+            </div>
+          </div>
         ) : jours.length === 0 ? (
           <p className={styles.etat}>
             Aucun créneau ouvert pour le moment. Adam ouvre ses disponibilités chaque semaine —

@@ -15,6 +15,7 @@ import {
 import { CLIENT_MOCK } from '../../data/mock'
 import { FIDELITE } from '../../config'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import {
   getProchainRdv,
   getHistorique,
@@ -34,6 +35,7 @@ export default function Account() {
   const navigate = useNavigate()
   const { configured, loading, session, user, profile, profileComplete, isAdmin, signOut } =
     useAuth()
+  const toast = useToast()
   const [rdv, setRdv] = useState(null)
   const [historique, setHistorique] = useState([])
   const [avisLaisses, setAvisLaisses] = useState(new Set())
@@ -133,6 +135,7 @@ export default function Account() {
       await annulerReservation(id)
       notifier('annulation', id)
       await charger()
+      toast('Rendez-vous annulé')
     } catch (e) {
       setErr(/2h/.test(e.message) ? 'Annulation impossible à moins de 2h.' : e.message)
     } finally {

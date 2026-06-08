@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import MagneticButton from '../../components/MagneticButton/MagneticButton'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import { supabase } from '../../lib/supabase'
 import styles from './CompleteProfile.module.css'
 
 export default function CompleteProfile() {
   const { user, profile, profileComplete, refreshProfile, loading } = useAuth()
+  const toast = useToast()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const suite = params.get('next') || '/mon-espace'
@@ -39,6 +41,7 @@ export default function CompleteProfile() {
       return
     }
     await refreshProfile()
+    toast('Profil enregistré ✓')
     navigate(suite, { replace: true })
   }
 
