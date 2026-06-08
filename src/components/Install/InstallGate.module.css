@@ -1,0 +1,132 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 380;
+  background: radial-gradient(120% 90% at 50% 0%, #1a1a1a, #0c0c0c 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 22px calc(28px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  animation: fade 0.4s ease both;
+}
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.inner {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-bottom: 24px;
+}
+.neuf {
+  color: var(--gold);
+}
+
+.titre {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.sous {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin-bottom: 26px;
+}
+
+.bloc {
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--gold-bord);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  margin-bottom: 22px;
+}
+.steps {
+  list-style: none;
+  counter-reset: s;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.steps li {
+  counter-increment: s;
+  position: relative;
+  padding-left: 40px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+.steps li::before {
+  content: counter(s);
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gold-grad);
+  color: #1a1a1a;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.steps strong {
+  color: var(--gold);
+}
+.share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid var(--gold-bord);
+  color: var(--gold);
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+.warn {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+.warn strong {
+  color: var(--gold);
+}
+
+.installBtn {
+  width: 100%;
+  padding: 1em;
+  border-radius: var(--r-sm);
+  background: var(--gold-grad);
+  color: #1a1a1a;
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: var(--shadow-gold);
+}
+.installBtn:active {
+  transform: scale(0.97);
+}
+
+.skip {
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 8px;
+}
+.skip:hover {
+  color: var(--text);
+}

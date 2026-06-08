@@ -13,11 +13,13 @@ import NotFound from './pages/NotFound/NotFound'
 import CompleteProfile from './pages/Profile/CompleteProfile'
 import { RequireProfile, RequireAdmin } from './components/Auth/Guards'
 import IntroSplash from './components/Intro/IntroSplash'
+import InstallGate from './components/Install/InstallGate'
 
 export default function App() {
   return (
     <>
       <IntroSplash />
+      <InstallGate />
       <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
