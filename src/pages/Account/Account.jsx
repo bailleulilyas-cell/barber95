@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import MagneticButton from '../../components/MagneticButton/MagneticButton'
 import LoginScreen from '../../components/Auth/LoginScreen'
 import Admin from '../Admin/Admin'
+import LoyaltyCard from '../../components/Loyalty/LoyaltyCard'
 import {
   IconSettings,
   IconBell,
@@ -168,12 +169,7 @@ export default function Account() {
             <Stat num={ceMois} label="Ce mois" />
             <Stat num={`${points}/${FIDELITE.objectif}`} label="Fidélité" or />
           </div>
-          <div className={styles.barre}>
-            <div className={styles.barreFill} style={{ width: `${pct}%` }} />
-          </div>
-          <p className={styles.fidTxt}>
-            {restant > 0 ? `Encore ${restant} coupe${restant > 1 ? 's' : ''} avant une offerte 🎁` : '🎉 Une coupe offerte t’attend !'}
-          </p>
+          <LoyaltyCard points={points} objectif={FIDELITE.objectif} />
         </section>
 
         {/* prochain RDV */}

@@ -1,0 +1,81 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: #0c0c0c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  overflow: hidden;
+  animation: sortie 0.5s cubic-bezier(0.7, 0, 0.84, 0) 1.5s forwards;
+}
+
+.mark {
+  position: relative;
+  font-size: clamp(2.4rem, 12vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  opacity: 0;
+  transform: scale(0.92);
+  animation: appar 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+  /* le texte est révélé par la lame */
+  clip-path: inset(0 100% 0 0);
+  animation-name: appar, reveal;
+  animation-duration: 0.7s, 0.6s;
+  animation-delay: 0.15s, 0.55s;
+  animation-fill-mode: forwards, forwards;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1), cubic-bezier(0.65, 0, 0.35, 1);
+}
+.neuf {
+  color: var(--gold);
+}
+
+/* la lame dorée qui balaie */
+.blade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, transparent, var(--gold-bright), transparent);
+  box-shadow: 0 0 22px 4px rgba(232, 199, 102, 0.7);
+  left: -5%;
+  opacity: 0;
+  animation: lame 0.7s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+}
+
+.sous {
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  animation: fade 0.6s ease 1s forwards;
+}
+
+@keyframes appar {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes lame {
+  0% { left: -5%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { left: 105%; opacity: 0; }
+}
+@keyframes fade {
+  to { opacity: 1; }
+}
+@keyframes sortie {
+  to {
+    transform: translateY(-100%);
+  }
+}

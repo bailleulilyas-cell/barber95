@@ -1,0 +1,27 @@
+.zone {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.piece {
+  position: absolute;
+  top: -16px;
+  opacity: 0;
+  animation-name: chute;
+  animation-timing-function: cubic-bezier(0.3, 0.6, 0.7, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes chute {
+  0% {
+    opacity: 1;
+    transform: translateY(-10vh) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(105vh) rotate(540deg);
+  }
+}

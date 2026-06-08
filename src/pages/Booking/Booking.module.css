@@ -225,6 +225,11 @@
   color: #07301c;
   font-weight: 700;
   margin-bottom: 14px;
+  animation: okPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes okPop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 .calLinks {
   display: flex;

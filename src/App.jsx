@@ -12,10 +12,13 @@ import Legal from './pages/Legal/Legal'
 import NotFound from './pages/NotFound/NotFound'
 import CompleteProfile from './pages/Profile/CompleteProfile'
 import { RequireProfile, RequireAdmin } from './components/Auth/Guards'
+import IntroSplash from './components/Intro/IntroSplash'
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <IntroSplash />
+      <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/galerie" element={<Gallery />} />
@@ -44,6 +47,7 @@ export default function App() {
         <Route path="/confidentialite" element={<Legal type="confidentialite" />} />
         <Route path="*" element={<NotFound />} />
       </Route>
-    </Routes>
+      </Routes>
+    </>
   )
 }

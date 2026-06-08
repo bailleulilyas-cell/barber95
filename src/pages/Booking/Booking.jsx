@@ -14,7 +14,14 @@ import {
   notifier,
 } from '../../lib/api'
 import { googleCalUrl, icsDataUri } from '../../lib/calendar'
+import Confetti from '../../components/Confetti/Confetti'
 import styles from './Booking.module.css'
+
+function celebrer() {
+  try {
+    navigator.vibrate?.([18, 40, 28])
+  } catch {}
+}
 
 const JOURS_COURT = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
 
@@ -95,6 +102,7 @@ export default function Booking() {
     setErr(null)
     if (!configured) {
       setConfirme(true)
+      celebrer()
       return
     }
     setBusy(true)
@@ -103,6 +111,7 @@ export default function Booking() {
       await confirmerReservation(resaId)
       notifier('confirmation', resaId)
       setConfirme(true)
+      celebrer()
     } catch (e) {
       setErr(/indisponible/i.test(e.message) ? 'Ce créneau vient d’être pris.' : e.message)
       setChoisi(null)
@@ -176,6 +185,7 @@ export default function Booking() {
       {/* bottom sheet glassmorphism */}
       {choisi && (
         <>
+          {confirme && <Confetti />}
           <div className={styles.scrim} onClick={fermerSheet} />
           <div className={styles.sheet}>
             <div className={styles.sheetHead}>
