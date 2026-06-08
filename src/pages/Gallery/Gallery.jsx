@@ -6,8 +6,7 @@ import { getGalerie, ajouterMedia, supprimerMedia } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import styles from './Gallery.module.css'
 
-// Vidéo en lecture auto fiable : React n'applique pas toujours `muted` sur le DOM,
-// ce qui fait bloquer l'autoplay par le navigateur. On force muted + play() via ref.
+// Vidéo en autoplay fiable (force muted + play via ref).
 function VideoTile({ src }) {
   const ref = useRef(null)
   useEffect(() => {
@@ -15,37 +14,28 @@ function VideoTile({ src }) {
     if (!v) return
     v.muted = true
     v.defaultMuted = true
-    const lancer = () => v.play().catch(() => {})
-    if (v.readyState >= 2) lancer()
-    else v.addEventListener('loadeddata', lancer, { once: true })
+    const go = () => v.play().catch(() => {})
+    if (v.readyState >= 2) go()
+    else v.addEventListener('loadeddata', go, { once: true })
   }, [src])
-  return (
-    <video
-      ref={ref}
-      src={src}
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="auto"
-      tabIndex={-1}
-    />
-  )
+  return <video ref={ref} src={src} autoPlay loop muted playsInline preload="auto" tabIndex={-1} />
 }
 
 export default function Gallery() {
   const { isAdmin } = useAuth()
-  const trackRef = useRef(null)
-  const itemRefs = useRef([])
   const fileRef = useRef(null)
-  const [actif, setActif] = useState(0)
-  const [plein, setPlein] = useState(null)
+  const zoneRef = useRef(null)
   const [items, setItems] = useState(configured ? [] : GALERIE)
   const [chargement, setChargement] = useState(configured)
   const [upload, setUpload] = useState(false)
   const [err, setErr] = useState(null)
+  const [plein, setPlein] = useState(null)
 
-  const drag = useRef({ down: false, startX: 0, startScroll: 0, moved: false })
+  // ── carrousel contrôlé ──
+  const [index, setIndex] = useState(0)
+  const [cw, setCw] = useState(360)
+  const [drag, setDrag] = useState(0)
+  const dragRef = useRef({ active: false, startX: 0, moved: false })
 
   const charger = useCallback(async () => {
     if (!configured) return
@@ -53,7 +43,6 @@ export default function Gallery() {
       const data = await getGalerie()
       setItems(data)
     } catch {
-      // table pas encore créée ou indisponible → galerie vide (pas d'erreur publique)
       setItems([])
     } finally {
       setChargement(false)
@@ -64,64 +53,48 @@ export default function Gallery() {
     charger()
   }, [charger])
 
-  // focus central + dots
+  // largeur du conteneur
   useEffect(() => {
-    const track = trackRef.current
-    if (!track) return
-    let raf = null
-    const onScroll = () => {
-      if (raf) return
-      raf = requestAnimationFrame(() => {
-        raf = null
-        const centre = track.scrollLeft + track.clientWidth / 2
-        let best = 0
-        let bestD = Infinity
-        itemRefs.current.forEach((el, i) => {
-          if (!el) return
-          const c = el.offsetLeft + el.offsetWidth / 2
-          const d = Math.abs(c - centre)
-          if (d < bestD) {
-            bestD = d
-            best = i
-          }
-        })
-        setActif(best)
-      })
-    }
-    track.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => track.removeEventListener('scroll', onScroll)
-  }, [items])
+    const maj = () => zoneRef.current && setCw(zoneRef.current.clientWidth)
+    maj()
+    window.addEventListener('resize', maj)
+    return () => window.removeEventListener('resize', maj)
+  }, [items.length])
+
+  const W = Math.min(264, cw - 76)
+  const H = Math.round(W * 1.34)
+  const STEP = W + 16
+  const maxIndex = Math.max(items.length - 1, 0)
+  const offset = cw / 2 - (index * STEP + W / 2) + drag
 
   const onDown = (e) => {
-    if (e.pointerType === 'touch') return
-    const track = trackRef.current
-    drag.current = { down: true, startX: e.clientX, startScroll: track.scrollLeft, moved: false }
-    track.setPointerCapture(e.pointerId)
+    dragRef.current = { active: true, startX: e.clientX, moved: false }
   }
   const onMove = (e) => {
-    if (!drag.current.down) return
-    const dx = e.clientX - drag.current.startX
-    if (Math.abs(dx) > 4) drag.current.moved = true
-    trackRef.current.scrollLeft = drag.current.startScroll - dx
+    if (!dragRef.current.active) return
+    const dx = e.clientX - dragRef.current.startX
+    if (Math.abs(dx) > 6) dragRef.current.moved = true
+    setDrag(dx)
   }
-  const onUp = (e) => {
-    if (!drag.current.down) return
-    drag.current.down = false
-    try {
-      trackRef.current.releasePointerCapture(e.pointerId)
-    } catch {}
-  }
-
-  const ouvrir = (i) => {
-    if (drag.current.moved) return
-    setPlein(i)
-  }
-  const allerA = (i) => {
-    const el = itemRefs.current[i]
-    if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  const onUp = () => {
+    if (!dragRef.current.active) return
+    const dx = drag
+    dragRef.current.active = false
+    setDrag(0)
+    if (dx < -45 && index < maxIndex) setIndex((i) => i + 1)
+    else if (dx > 45 && index > 0) setIndex((i) => i - 1)
   }
 
+  const cliquer = (i) => {
+    if (dragRef.current.moved) return
+    if (i !== index) {
+      setIndex(i)
+      return
+    }
+    if (items[i]?.type !== 'video') setPlein(i)
+  }
+
+  // fermeture lightbox
   useEffect(() => {
     if (plein === null) return
     const onKey = (e) => e.key === 'Escape' && setPlein(null)
@@ -129,12 +102,12 @@ export default function Gallery() {
     return () => window.removeEventListener('keydown', onKey)
   }, [plein])
 
-  // ── admin : upload ──
+  // ── admin upload ──
   const onFichiers = async (e) => {
     const files = [...e.target.files]
     if (!files.length) return
     if (!cloudinaryConfigured) {
-      setErr('Cloudinary non configuré (clés manquantes).')
+      setErr('Cloudinary non configuré.')
       return
     }
     setUpload(true)
@@ -152,10 +125,10 @@ export default function Gallery() {
       if (fileRef.current) fileRef.current.value = ''
     }
   }
-
   const supprimer = async (id) => {
     try {
       await supprimerMedia(id)
+      if (index > 0) setIndex((i) => Math.min(i, items.length - 2))
       await charger()
     } catch (e) {
       setErr(e.message)
@@ -164,6 +137,7 @@ export default function Gallery() {
 
   const adminActif = configured && isAdmin
   const vide = !chargement && items.length === 0
+  const actuel = items[index]
 
   return (
     <main className={styles.page}>
@@ -171,21 +145,10 @@ export default function Gallery() {
         <span className={styles.eyebrow}>Réalisations</span>
         {adminActif && (
           <>
-            <button
-              className={styles.ajouter}
-              onClick={() => fileRef.current?.click()}
-              disabled={upload}
-            >
+            <button className={styles.ajouter} onClick={() => fileRef.current?.click()} disabled={upload}>
               {upload ? 'Envoi…' : '+ Ajouter'}
             </button>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              hidden
-              onChange={onFichiers}
-            />
+            <input ref={fileRef} type="file" accept="image/*,video/*" multiple hidden onChange={onFichiers} />
           </>
         )}
       </div>
@@ -196,95 +159,93 @@ export default function Gallery() {
         <p className={styles.etat}>Chargement…</p>
       ) : vide ? (
         <p className={styles.etat}>
-          {adminActif
-            ? 'Aucun média pour l’instant — clique « + Ajouter » pour publier tes premières coupes.'
-            : 'Galerie bientôt disponible.'}
+          {adminActif ? 'Aucun média — clique « + Ajouter ».' : 'Galerie bientôt disponible.'}
         </p>
       ) : (
         <>
           <div
-            className={styles.track}
-            ref={trackRef}
+            className={styles.zone}
+            ref={zoneRef}
             onPointerDown={onDown}
             onPointerMove={onMove}
             onPointerUp={onUp}
+            onPointerLeave={onUp}
             onPointerCancel={onUp}
           >
-            <div className={styles.spacer} aria-hidden="true" />
-            {items.map((g, i) => (
-              <figure
-                key={g.id}
-                ref={(el) => (itemRefs.current[i] = el)}
-                className={`${styles.item} ${i === actif ? styles.focus : ''}`}
-                onClick={() => g.type !== 'video' && ouvrir(i)}
-              >
-                <div className={styles.media}>
-                  {g.url ? (
-                    g.type === 'video' ? (
-                      // vidéo : lecture continue en boucle, sans son, non cliquable
-                      <VideoTile src={g.url} />
+            <div
+              className={styles.track}
+              style={{
+                transform: `translateX(${offset}px)`,
+                transition: dragRef.current.active ? 'none' : 'transform 0.45s cubic-bezier(0.22,1,0.36,1)',
+              }}
+            >
+              {items.map((g, i) => (
+                <figure
+                  key={g.id || i}
+                  className={`${styles.item} ${i === index ? styles.focus : ''}`}
+                  style={{ width: W }}
+                  onClick={() => cliquer(i)}
+                >
+                  <div className={styles.media} style={{ height: H }}>
+                    {g.url ? (
+                      g.type === 'video' ? (
+                        <VideoTile src={g.url} />
+                      ) : (
+                        <img src={g.url} alt={g.legende || 'Coupe'} draggable="false" />
+                      )
                     ) : (
-                      <img src={g.url} alt={g.legende || 'Coupe BARBER95'} draggable="false" />
-                    )
-                  ) : (
-                    <div className={styles.placeholder}>
-                      <span>{String(i + 1).padStart(2, '0')}</span>
-                    </div>
-                  )}
-                </div>
-                {g.legende ? <figcaption className={styles.legende}>{g.legende}</figcaption> : null}
-                {adminActif && (
-                  <button
-                    className={styles.suppr}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      supprimer(g.id)
-                    }}
-                    aria-label="Supprimer"
-                  >
-                    ✕
-                  </button>
-                )}
-              </figure>
-            ))}
-            <div className={styles.spacer} aria-hidden="true" />
+                      <div className={styles.placeholder}>{String(i + 1).padStart(2, '0')}</div>
+                    )}
+                    {adminActif && (
+                      <button
+                        className={styles.suppr}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          supprimer(g.id)
+                        }}
+                        aria-label="Supprimer"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  {g.legende ? <figcaption className={styles.legende}>{g.legende}</figcaption> : null}
+                </figure>
+              ))}
+            </div>
           </div>
 
           <div className={styles.dots}>
             {items.map((g, i) => (
               <button
-                key={g.id}
-                className={`${styles.dot} ${i === actif ? styles.dotOn : ''}`}
-                aria-label={`Voir le média ${i + 1}`}
-                onClick={() => allerA(i)}
+                key={g.id || i}
+                className={`${styles.dot} ${i === index ? styles.dotOn : ''}`}
+                aria-label={`Média ${i + 1}`}
+                onClick={() => setIndex(i)}
               />
             ))}
           </div>
 
-          <p className={styles.hint}>Glisse pour explorer · touche une photo pour l’agrandir</p>
+          <p className={styles.hint}>
+            {actuel?.type === 'video' ? 'Glisse pour la suite' : 'Glisse · touche pour agrandir'}
+          </p>
         </>
       )}
 
       {plein !== null && items[plein] && (
         <div className={styles.lightbox} onClick={() => setPlein(null)}>
-          <button className={styles.fermer} aria-label="Fermer">
-            ✕
-          </button>
+          <button className={styles.fermer} aria-label="Fermer">✕</button>
           <div className={styles.lbMedia} onClick={(e) => e.stopPropagation()}>
             {items[plein].url ? (
               items[plein].type === 'video' ? (
                 <video src={items[plein].url} controls autoPlay playsInline />
               ) : (
-                <img src={items[plein].url} alt={items[plein].legende || 'Coupe BARBER95'} />
+                <img src={items[plein].url} alt={items[plein].legende || 'Coupe'} />
               )
             ) : (
-              <div className={styles.lbPlaceholder}>
-                <span>{String(plein + 1).padStart(2, '0')}</span>
-              </div>
+              <div className={styles.lbPlaceholder}>{String(plein + 1).padStart(2, '0')}</div>
             )}
-            {items[plein].legende ? (
-              <span className={styles.lbLegende}>{items[plein].legende}</span>
-            ) : null}
+            {items[plein].legende ? <span className={styles.lbLegende}>{items[plein].legende}</span> : null}
           </div>
         </div>
       )}
