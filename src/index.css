@@ -115,7 +115,12 @@ img {
 .page {
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 26px 18px calc(var(--nav-h) + 28px);
+  /* on réserve l'espace de l'encoche/barre d'état (iOS plein écran) en haut,
+     et la home-indicator + barre du bas en bas */
+  padding:
+    calc(26px + env(safe-area-inset-top, 0px))
+    18px
+    calc(var(--nav-h) + 28px + env(safe-area-inset-bottom, 0px));
 }
 
 .wrap {
