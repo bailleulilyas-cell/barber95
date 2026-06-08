@@ -29,7 +29,7 @@
   text-transform: uppercase;
   color: var(--noir);
   background: var(--kaki);
-  border-radius: 2px;
+  border-radius: var(--r);
   padding: 9px 16px;
   transition: background 0.2s ease, transform 0.12s ease;
 }
@@ -86,7 +86,7 @@
   align-items: center;
   gap: 18px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   cursor: grab;
@@ -101,23 +101,23 @@
 
 /* espaceurs pour pouvoir centrer le 1er et le dernier */
 .spacer {
-  flex: 0 0 calc(50vw - 120px);
+  flex: 0 0 calc(50vw - 125px);
 }
-@media (min-width: 1025px) {
+@media (min-width: 700px) {
   .spacer {
-    flex: 0 0 calc(50vw - var(--rail) / 2 - 200px);
+    flex: 0 0 calc(50% - 160px);
   }
 }
 
 .item {
   position: relative;
   flex: 0 0 auto;
-  width: 240px;
+  width: 250px;
   scroll-snap-align: center;
   cursor: pointer;
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
-  opacity: 0.45;
-  transform: scale(0.86);
+  opacity: 0.4;
+  transform: scale(0.85);
 }
 .focus {
   opacity: 1;
@@ -132,10 +132,15 @@
 .media {
   width: 100%;
   aspect-ratio: 3 / 4;
-  background: var(--noir);
-  border: 1px solid var(--ligne);
+  background: var(--surface);
+  border: 1px solid var(--line);
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: var(--r-lg);
+  transition: box-shadow 0.45s ease, border-color 0.45s ease;
+}
+.focus .media {
+  border-color: var(--gold-bord);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--gold-bord);
 }
 .media img,
 .media video {
@@ -254,7 +259,7 @@
 .lbMedia video {
   max-height: 78vh;
   max-width: 100%;
-  border-radius: 2px;
+  border-radius: var(--r);
 }
 .lbPlaceholder {
   width: min(80vw, 420px);
@@ -265,7 +270,7 @@
   background:
     repeating-linear-gradient(45deg, #161616, #161616 14px, #131313 14px, #131313 28px);
   border: 1px solid var(--ligne);
-  border-radius: 2px;
+  border-radius: var(--r);
 }
 .lbLegende {
   font-family: var(--syne);

@@ -11,9 +11,10 @@ function estStandalone() {
 function detecter() {
   const ua = navigator.userAgent || ''
   const inApp = /Instagram|FBAN|FBAV|FB_IAB|Snapchat|TikTok|Line\//i.test(ua)
+  const samsung = /SamsungBrowser/i.test(ua)
   const ios = /iPhone|iPad|iPod/i.test(ua)
   const android = /Android/i.test(ua)
-  return { inApp, ios, android, desktop: !ios && !android }
+  return { inApp, samsung, ios, android, desktop: !ios && !android }
 }
 
 export default function InstallGate() {
@@ -24,6 +25,7 @@ export default function InstallGate() {
     return true
   })
   const [promptEvt, setPromptEvt] = useState(null)
+  const [installed, setInstalled] = useState(false)
   const plat = typeof navigator !== 'undefined' ? detecter() : {}
 
   useEffect(() => {
@@ -31,8 +33,13 @@ export default function InstallGate() {
       e.preventDefault()
       setPromptEvt(e)
     }
+    const onInstalled = () => setInstalled(true)
     window.addEventListener('beforeinstallprompt', onPrompt)
-    return () => window.removeEventListener('beforeinstallprompt', onPrompt)
+    window.addEventListener('appinstalled', onInstalled)
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onPrompt)
+      window.removeEventListener('appinstalled', onInstalled)
+    }
   }, [])
 
   if (!show) return null
@@ -42,12 +49,31 @@ export default function InstallGate() {
     setShow(false)
   }
 
-  const installerAndroid = async () => {
+  const installer = async () => {
     if (!promptEvt) return
     promptEvt.prompt()
     const { outcome } = await promptEvt.userChoice
-    if (outcome === 'accepted') setShow(false)
+    if (outcome === 'accepted') setInstalled(true)
     setPromptEvt(null)
+  }
+
+  // ── Écran de succès après installation ──
+  if (installed) {
+    return (
+      <div className={styles.overlay}>
+        <div className={styles.inner}>
+          <div className={styles.check}>✓</div>
+          <h1 className={styles.titre}>C’est installé !</h1>
+          <p className={styles.sous}>
+            Ferme cet onglet et ouvre <strong className={styles.gold}>BARBER95</strong> depuis l’icône
+            sur ton écran d’accueil. Tu auras l’appli en plein écran.
+          </p>
+          <button className={styles.skip} onClick={passer}>
+            Continuer ici en attendant
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -58,16 +84,24 @@ export default function InstallGate() {
         </div>
         <h1 className={styles.titre}>Installe l’appli</h1>
         <p className={styles.sous}>
-          Pour la meilleure expérience, ajoute BARBER95 à ton écran d’accueil — ça s’ouvre comme une
-          vraie appli, en un tap.
+          Ajoute BARBER95 à ton écran d’accueil — ça s’ouvre comme une vraie appli, en plein écran.
         </p>
 
-        {/* ── Navigateur in-app (Instagram, TikTok…) ── */}
+        {/* bouton d'installation direct si le navigateur le permet (Chrome, Samsung, Edge…) */}
+        {promptEvt && !plat.inApp && (
+          <div className={styles.bloc}>
+            <button className={styles.installBtn} onClick={installer}>
+              📲 Installer l’application
+            </button>
+          </div>
+        )}
+
+        {/* in-app (Instagram, TikTok…) */}
         {plat.inApp && (
           <div className={styles.bloc}>
             <p className={styles.warn}>
-              Tu es dans le navigateur d’une appli (Instagram/TikTok). Pour installer, ouvre d’abord
-              ce lien dans <strong>Safari</strong> (iPhone) ou <strong>Chrome</strong> (Android).
+              Tu es dans le navigateur d’une autre appli. Pour installer, ouvre d’abord ce lien dans{' '}
+              <strong>Safari</strong> (iPhone) ou <strong>Chrome</strong> (Android).
             </p>
             <ol className={styles.steps}>
               <li>Touche le menu <strong>•••</strong> en haut</li>
@@ -76,7 +110,7 @@ export default function InstallGate() {
           </div>
         )}
 
-        {/* ── iPhone (Safari) ── */}
+        {/* iPhone (Safari) */}
         {!plat.inApp && plat.ios && (
           <div className={styles.bloc}>
             <ol className={styles.steps}>
@@ -84,46 +118,41 @@ export default function InstallGate() {
                 Touche <strong>Partager</strong>{' '}
                 <span className={styles.share} aria-hidden="true">⎙</span> en bas de Safari
               </li>
-              <li>
-                Fais défiler et choisis <strong>« Sur l’écran d’accueil »</strong>
-              </li>
-              <li>
-                Touche <strong>Ajouter</strong> — l’icône BARBER95 apparaît 🎉
-              </li>
+              <li>Choisis <strong>« Sur l’écran d’accueil »</strong></li>
+              <li>Touche <strong>Ajouter</strong> 🎉</li>
             </ol>
           </div>
         )}
 
-        {/* ── Android ── */}
-        {!plat.inApp && plat.android && (
+        {/* Samsung Internet (menu différent de Chrome) */}
+        {!plat.inApp && plat.samsung && !promptEvt && (
           <div className={styles.bloc}>
-            {promptEvt ? (
-              <button className={styles.installBtn} onClick={installerAndroid}>
-                📲 Installer l’application
-              </button>
-            ) : (
-              <ol className={styles.steps}>
-                <li>Touche le menu <strong>⋮</strong> en haut de Chrome</li>
-                <li>Choisis <strong>« Ajouter à l’écran d’accueil »</strong></li>
-                <li>Confirme — c’est installé 🎉</li>
-              </ol>
-            )}
+            <ol className={styles.steps}>
+              <li>Touche le menu <strong>☰</strong> en bas à droite</li>
+              <li>Choisis <strong>« Ajouter la page à »</strong></li>
+              <li>Puis <strong>« Écran d’accueil »</strong> 🎉</li>
+            </ol>
           </div>
         )}
 
-        {/* ── Desktop ── */}
-        {!plat.inApp && plat.desktop && (
+        {/* Android Chrome (sans bouton auto) */}
+        {!plat.inApp && plat.android && !plat.samsung && !promptEvt && (
           <div className={styles.bloc}>
-            {promptEvt ? (
-              <button className={styles.installBtn} onClick={installerAndroid}>
-                📲 Installer l’application
-              </button>
-            ) : (
-              <p className={styles.warn}>
-                Sur ordinateur, clique l’icône d’installation dans la barre d’adresse du navigateur —
-                ou ouvre simplement le site sur ton téléphone.
-              </p>
-            )}
+            <ol className={styles.steps}>
+              <li>Touche le menu <strong>⋮</strong> en haut de Chrome</li>
+              <li>Choisis <strong>« Installer l’application »</strong> ou <strong>« Ajouter à l’écran d’accueil »</strong></li>
+              <li>Confirme 🎉</li>
+            </ol>
+          </div>
+        )}
+
+        {/* Desktop sans prompt */}
+        {!plat.inApp && plat.desktop && !promptEvt && (
+          <div className={styles.bloc}>
+            <p className={styles.warn}>
+              Sur ordinateur, clique l’icône d’installation dans la barre d’adresse — ou ouvre le
+              site sur ton téléphone.
+            </p>
           </div>
         )}
 

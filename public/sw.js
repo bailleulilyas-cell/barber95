@@ -1,5 +1,5 @@
 // Service worker minimal BARBER95 — installabilité PWA + cache runtime léger.
-const CACHE = 'barber95-v1'
+const CACHE = 'barber95-v2'
 
 self.addEventListener('install', (e) => {
   self.skipWaiting()
