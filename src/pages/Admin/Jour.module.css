@@ -5,7 +5,10 @@
   background: var(--bg);
   overflow: hidden;
   z-index: 80; /* au-dessus de la bannière d'installation (70) : écran sans distraction */
-  touch-action: pan-y;
+  /* geste géré par JS : on coupe le scroll natif ET le « tirer pour rafraîchir »
+     du navigateur (sinon le swipe vers le bas recharge la page) */
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 .face {
@@ -134,6 +137,10 @@
   gap: 10px;
   overflow-y: auto;
   min-height: 0;
+  /* la liste peut défiler, mais son défilement ne « déborde » pas
+     sur la page (pas de pull-to-refresh quand on arrive en haut) */
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 .dResa {
   display: flex;

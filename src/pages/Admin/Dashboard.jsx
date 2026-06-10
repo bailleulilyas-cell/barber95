@@ -23,7 +23,7 @@ import {
 import { rdvDuJour, revenuEstime, statsMensuelles } from '../../lib/stats'
 import { prixResa } from '../../lib/tarif'
 import Skeleton from '../../components/Skeleton/Skeleton'
-import { IconCalendar, IconUser } from '../../components/Icons'
+import { IconCalendar, IconUser, IconScissors } from '../../components/Icons'
 import styles from './Dashboard.module.css'
 
 function heure(iso) {
@@ -289,6 +289,9 @@ export default function Dashboard() {
 
         {/* ── Raccourcis ── */}
         <div className={styles.raccourcis}>
+          <Link to="/tarifs" className={styles.raccourci}>
+            <IconScissors size={18} /> Modifier la prestation & les prix (normal + ami)
+          </Link>
           <Link to="/admin" className={styles.raccourci}>
             <IconCalendar size={18} /> Gestion des résas
           </Link>
