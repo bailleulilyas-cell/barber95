@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import {
   ResponsiveContainer,
   BarChart,
@@ -12,18 +11,10 @@ import {
   CartesianGrid,
 } from 'recharts'
 import { useAuth } from '../../context/AuthContext'
-import { useToast } from '../../context/ToastContext'
-import {
-  getResasDuJour,
-  getResasTermineesDepuis,
-  getRelanceSemaines,
-  setRelanceSemaines,
-  onTableChange,
-} from '../../lib/api'
+import { getResasDuJour, getResasTermineesDepuis, onTableChange } from '../../lib/api'
 import { rdvDuJour, revenuEstime, statsMensuelles } from '../../lib/stats'
 import { prixResa } from '../../lib/tarif'
 import Skeleton from '../../components/Skeleton/Skeleton'
-import { IconCalendar, IconUser, IconScissors } from '../../components/Icons'
 import styles from './Dashboard.module.css'
 
 function heure(iso) {
@@ -46,13 +37,10 @@ const TOOLTIP_STYLE = {
 
 export default function Dashboard() {
   const { configured } = useAuth()
-  const toast = useToast()
   const [jour, setJour] = useState([])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(configured)
   const [err, setErr] = useState(null)
-  const [semaines, setSemaines] = useState(3)
-  const [semainesBusy, setSemainesBusy] = useState(false)
 
   const charger = useCallback(async () => {
     if (!configured) return
@@ -61,14 +49,12 @@ export default function Dashboard() {
       const debutMoisPrec = new Date()
       debutMoisPrec.setMonth(debutMoisPrec.getMonth() - 1, 1)
       debutMoisPrec.setHours(0, 0, 0, 0)
-      const [duJour, terminees, delai] = await Promise.all([
+      const [duJour, terminees] = await Promise.all([
         getResasDuJour(),
         getResasTermineesDepuis(debutMoisPrec.toISOString()),
-        getRelanceSemaines().catch(() => 3),
       ])
       setJour(rdvDuJour(duJour))
       setStats(statsMensuelles(terminees))
-      setSemaines(delai)
     } catch (e) {
       setErr(e.message)
     } finally {
@@ -94,30 +80,6 @@ export default function Dashboard() {
     }
   }, [charger])
 
-  const copierLien = async () => {
-    const lien = `${window.location.origin}/book`
-    try {
-      await navigator.clipboard.writeText(lien)
-      toast('Lien copié ✓ Colle-le sur WhatsApp ou Insta')
-    } catch {
-      toast(lien, 'error')
-    }
-  }
-
-  const sauverSemaines = async () => {
-    const n = Math.min(12, Math.max(1, parseInt(semaines, 10) || 3))
-    setSemainesBusy(true)
-    try {
-      await setRelanceSemaines(n)
-      setSemaines(n)
-      toast(`Relance après ${n} semaine${n > 1 ? 's' : ''} ✓`)
-    } catch (e) {
-      toast(e.message || 'Erreur', 'error')
-    } finally {
-      setSemainesBusy(false)
-    }
-  }
-
   const aujourdHui = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long',
     day: 'numeric',
@@ -129,7 +91,7 @@ export default function Dashboard() {
       <main className="page">
         <div className="wrap">
           <span className={styles.eyebrow}>Espace Adam</span>
-          <h1 className={styles.titre}>Ma journée</h1>
+          <h1 className={styles.titre}>Aujourd’hui</h1>
           <p className={styles.erreur}>Mode démo — Supabase non configuré.</p>
         </div>
       </main>
@@ -142,8 +104,8 @@ export default function Dashboard() {
     <main className="page">
       <div className="wrap">
         <header className={styles.head}>
-          <span className={styles.eyebrow}>Espace Adam</span>
-          <h1 className={styles.titre}>{aujourdHui}</h1>
+          <span className={styles.eyebrow}>{aujourdHui}</span>
+          <h1 className={styles.titre}>Aujourd’hui</h1>
           {loading ? (
             <Skeleton w="45%" h={16} style={{ marginTop: 6 }} />
           ) : (
@@ -184,17 +146,6 @@ export default function Dashboard() {
         <div className={styles.revenu}>
           <span>Revenu estimé aujourd’hui</span>
           {loading ? <Skeleton w={64} h={26} /> : <span className={styles.revenuNum}>{revenuJour}€</span>}
-        </div>
-
-        {/* ── Lien de résa partageable ── */}
-        <div className={styles.partage}>
-          <div className={styles.partageTxt}>
-            <span className={styles.partageTitre}>Mon lien de résa</span>
-            <span className={styles.partageSub}>À coller sur WhatsApp, en bio Insta…</span>
-          </div>
-          <button className={styles.partageBtn} onClick={copierLien}>
-            Copier mon lien
-          </button>
         </div>
 
         {/* ── Stats du mois ── */}
@@ -264,41 +215,6 @@ export default function Dashboard() {
             </div>
           </>
         )}
-
-        {/* ── Réglage relance auto ── */}
-        <h2 className={styles.section}>Relance automatique</h2>
-        <div className={styles.relance}>
-          <label className={styles.relanceTxt} htmlFor="relance-semaines">
-            Relancer par email les clients sans RDV depuis
-          </label>
-          <div className={styles.relanceCtrl}>
-            <input
-              id="relance-semaines"
-              type="number"
-              min="1"
-              max="12"
-              value={semaines}
-              onChange={(e) => setSemaines(e.target.value)}
-            />
-            <span>sem.</span>
-            <button onClick={sauverSemaines} disabled={semainesBusy}>
-              {semainesBusy ? '…' : 'OK'}
-            </button>
-          </div>
-        </div>
-
-        {/* ── Raccourcis ── */}
-        <div className={styles.raccourcis}>
-          <Link to="/tarifs" className={styles.raccourci}>
-            <IconScissors size={18} /> Modifier la prestation & les prix (normal + ami)
-          </Link>
-          <Link to="/admin" className={styles.raccourci}>
-            <IconCalendar size={18} /> Gestion des résas
-          </Link>
-          <Link to="/admin/clients" className={styles.raccourci}>
-            <IconUser size={18} /> Mes clients
-          </Link>
-        </div>
       </div>
     </main>
   )

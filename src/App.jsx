@@ -11,6 +11,7 @@ import Account from './pages/Account/Account'
 import Admin from './pages/Admin/Admin'
 import Jour from './pages/Admin/Jour'
 import Clients from './pages/Admin/Clients'
+import Reglages from './pages/Admin/Reglages'
 
 // chargé à la demande : Recharts (graphes) ne doit peser que pour Adam
 const Dashboard = lazy(() => import('./pages/Admin/Dashboard'))
@@ -69,6 +70,14 @@ export default function App() {
           element={
             <RequireAdmin>
               <Clients />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/reglages"
+          element={
+            <RequireAdmin>
+              <Reglages />
             </RequireAdmin>
           }
         />

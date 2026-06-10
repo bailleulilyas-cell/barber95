@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import {
   getReservationsAdmin,
   getTousAvis,
@@ -11,7 +10,7 @@ import {
 } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import { IconCalendar, IconStar, IconClock } from '../../components/Icons'
+import { IconCalendar } from '../../components/Icons'
 import { RESERVATIONS_ADMIN } from '../../data/mock'
 import CreneauxManager from './CreneauxManager'
 import styles from './Admin.module.css'
@@ -110,38 +109,18 @@ export default function Admin() {
         <header className={styles.head}>
           <div>
             <span className={styles.eyebrow}>Espace Adam</span>
-            <h1 className={styles.titre}>Tableau de bord</h1>
+            <h1 className={styles.titre}>Planning</h1>
           </div>
         </header>
 
         {err && <p className={styles.erreur}>{err}</p>}
 
-        {/* stats */}
-        <div className={styles.stats}>
-          <div className={styles.stat}>
-            <span className={styles.statNum}>{aVenir.length}</span>
-            <span className={styles.statLbl}>À venir</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statNum}>{passees.length}</span>
-            <span className={styles.statLbl}>À clôturer</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statNum}>{avis.length}</span>
-            <span className={styles.statLbl}>Avis</span>
-          </div>
-        </div>
-
-        {/* actions rapides */}
+        {/* action : ouvrir/fermer les créneaux */}
         <div className={styles.quick}>
           <button className={styles.quickBtn} onClick={() => setGestion(true)}>
             <IconCalendar size={20} />
             Gérer mes créneaux
           </button>
-          <Link className={styles.quickGhost} to="/galerie">
-            <IconStar size={20} />
-            Galerie
-          </Link>
         </div>
 
         {loading ? (

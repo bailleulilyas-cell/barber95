@@ -5,8 +5,6 @@ import LoginScreen from '../../components/Auth/LoginScreen'
 import Admin from '../Admin/Admin'
 import LoyaltyCard from '../../components/Loyalty/LoyaltyCard'
 import {
-  IconSettings,
-  IconBell,
   IconShield,
   IconHelp,
   IconStar,
@@ -43,6 +41,7 @@ export default function Account() {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
   const [annuleDemo, setAnnuleDemo] = useState(false)
+  const [confirmDeco, setConfirmDeco] = useState(false)
 
   const clientPret = configured && session && profileComplete && !isAdmin
 
@@ -148,11 +147,6 @@ export default function Account() {
       <div className="wrap">
         <header className={styles.head}>
           <h1 className="titrePage">Mon profil</h1>
-          {configured && session && (
-            <button className={styles.gear} onClick={signOut} aria-label="Se déconnecter">
-              <IconSettings size={20} />
-            </button>
-          )}
         </header>
 
         {err && <p className={styles.erreur}>{err}</p>}
@@ -267,11 +261,30 @@ export default function Account() {
         </div>
 
         {configured && session && (
-          <button className={styles.signout} onClick={signOut}>
+          <button className={styles.signout} onClick={() => setConfirmDeco(true)}>
             Se déconnecter
           </button>
         )}
       </div>
+
+      {/* confirmation avant déconnexion */}
+      {confirmDeco && (
+        <>
+          <div className={styles.confirmScrim} onClick={() => setConfirmDeco(false)} />
+          <div className={styles.confirmBox} role="dialog" aria-modal="true">
+            <p className={styles.confirmTitre}>Se déconnecter ?</p>
+            <p className={styles.confirmTxt}>Tu devras te reconnecter avec Google la prochaine fois.</p>
+            <div className={styles.confirmBtns}>
+              <button className={styles.confirmAnnuler} onClick={() => setConfirmDeco(false)}>
+                Annuler
+              </button>
+              <button className={styles.confirmOk} onClick={signOut}>
+                Se déconnecter
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </main>
   )
 }

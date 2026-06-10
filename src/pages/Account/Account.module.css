@@ -4,17 +4,6 @@
   justify-content: space-between;
   margin-bottom: 20px;
 }
-.gear {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .muted {
   color: var(--muted);
@@ -300,4 +289,75 @@
 }
 .signout:active {
   transform: scale(0.98);
+}
+
+/* confirmation de déconnexion */
+.confirmScrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 90;
+  animation: fadeIn 0.18s ease;
+}
+.confirmBox {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 32px));
+  background: var(--surface);
+  border: 1px solid var(--line-fort);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  z-index: 91;
+  animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.confirmTitre {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.confirmTxt {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+.confirmBtns {
+  display: flex;
+  gap: 10px;
+}
+.confirmAnnuler,
+.confirmOk {
+  flex: 1;
+  padding: 13px;
+  border-radius: var(--r-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.confirmAnnuler {
+  background: var(--surface-2);
+  border: 1px solid var(--line-fort);
+  color: var(--text);
+}
+.confirmOk {
+  background: rgba(229, 86, 75, 0.14);
+  border: 1px solid rgba(229, 86, 75, 0.4);
+  color: var(--red);
+}
+.confirmOk:active,
+.confirmAnnuler:active {
+  transform: scale(0.97);
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
 }

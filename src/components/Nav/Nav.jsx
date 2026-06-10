@@ -5,6 +5,8 @@ import {
   IconScissors,
   IconCalendar,
   IconUser,
+  IconClock,
+  IconSettings,
 } from '../Icons'
 import styles from './Nav.module.css'
 
@@ -16,10 +18,10 @@ const TABS_CLIENT = [
 ]
 
 const TABS_ADMIN = [
-  { to: '/admin/dashboard', label: 'Dashboard', Icon: IconCalendar },
-  { to: '/admin', label: 'Gestion', Icon: IconScissors, end: true },
+  { to: '/admin/dashboard', label: "Aujourd'hui", Icon: IconCalendar },
+  { to: '/admin', label: 'Planning', Icon: IconClock, end: true },
   { to: '/admin/clients', label: 'Clients', Icon: IconUser },
-  { to: '/', label: 'Site', Icon: IconHome, end: true },
+  { to: '/admin/reglages', label: 'Réglages', Icon: IconSettings },
 ]
 
 export default function Nav() {
