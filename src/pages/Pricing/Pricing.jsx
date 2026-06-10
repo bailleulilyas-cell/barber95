@@ -6,6 +6,7 @@ import { IconClock } from '../../components/Icons'
 import { PRESTATIONS, FIDELITE } from '../../config'
 import { configured } from '../../lib/supabase'
 import { getPrestation, updatePrestation } from '../../lib/api'
+import { prixPour } from '../../lib/tarif'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import styles from './Pricing.module.css'
@@ -14,7 +15,7 @@ const DESC_DEFAUT = 'Coupe homme, finitions soignées au millimètre.'
 
 export default function Pricing() {
   const navigate = useNavigate()
-  const { isAdmin } = useAuth()
+  const { isAdmin, profile } = useAuth()
   const toast = useToast()
   const [presta, setPresta] = useState(PRESTATIONS[0])
   const [edit, setEdit] = useState(false)
@@ -29,6 +30,7 @@ export default function Pricing() {
     setForm({
       nom: presta.nom,
       prix: presta.prix,
+      prix_ami: presta.prix_ami ?? '',
       duree_minutes: presta.duree_minutes,
       description: presta.description || DESC_DEFAUT,
     })
@@ -41,6 +43,8 @@ export default function Pricing() {
       const fields = {
         nom: form.nom.trim(),
         prix: Number(form.prix),
+        // vide = pas de tarif ami
+        prix_ami: form.prix_ami === '' ? null : Number(form.prix_ami),
         duree_minutes: Number(form.duree_minutes),
         description: form.description.trim(),
       }
@@ -99,6 +103,15 @@ export default function Pricing() {
                 />
               </label>
             </div>
+            <label className={styles.champ}>
+              <span>Prix ami (€) — vide = aucun</span>
+              <input
+                type="number"
+                placeholder="ex. 8"
+                value={form.prix_ami}
+                onChange={(e) => setForm({ ...form, prix_ami: e.target.value })}
+              />
+            </label>
             <div className={styles.editBtns}>
               <MagneticButton variant="ghost" onClick={() => setEdit(false)}>Annuler</MagneticButton>
               <MagneticButton onClick={sauver} disabled={busy}>{busy ? '…' : 'Enregistrer'}</MagneticButton>
@@ -112,7 +125,8 @@ export default function Pricing() {
             </div>
             <p className={styles.desc}>{presta.description || DESC_DEFAUT}</p>
             <div className={styles.cardBas}>
-              <span className={styles.prix}>{presta.prix}€</span>
+              {/* tarif ami appliqué en silence : le client voit juste « son » prix */}
+              <span className={styles.prix}>{prixPour(profile, presta)}€</span>
               <span className={styles.duree}>
                 <IconClock size={16} /> {presta.duree_minutes} min
               </span>

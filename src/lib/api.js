@@ -138,11 +138,20 @@ export async function ajouterCreneauxBulk(debuts) {
 // ════════════════════ RÉSERVATION (client) ════════════════════
 
 // Verrou temporaire atomique (RPC). Renvoie l'id de réservation.
-export async function reserverCreneau(creneauId, prestationId) {
-  const { data, error } = await client().rpc('reserver_creneau', {
+// `source` (optionnel) : d'où vient le client (lien partagé /book?source=…).
+export async function reserverCreneau(creneauId, prestationId, source = null) {
+  let { data, error } = await client().rpc('reserver_creneau', {
     p_creneau: creneauId,
     p_prestation: prestationId,
+    p_source: source,
   })
+  // compat : migration 0009 pas encore lancée → ancienne signature à 2 params
+  if (error && /p_source/i.test(error.message || '')) {
+    ;({ data, error } = await client().rpc('reserver_creneau', {
+      p_creneau: creneauId,
+      p_prestation: prestationId,
+    }))
+  }
   if (error) throw error
   return data
 }
@@ -289,6 +298,94 @@ export async function notifier(type, reservationId) {
   } catch (e) {
     console.warn('notify échoué (non bloquant) :', e?.message)
   }
+}
+
+// ════════════════════ DASHBOARD ADAM ════════════════════
+
+// Sélection enrichie pour le dashboard : tarif ami + prix pour le revenu estimé.
+const DASHBOARD_RESA_SELECT =
+  'id, statut, source, created_at, client_id, clients(prenom, tel, is_friend), creneaux!inner(datetime_debut, datetime_fin), prestations(nom, prix, prix_ami)'
+
+// Réservations du jour (toutes sauf annulées), créneau entre deux bornes.
+export async function getResasDuJour(date = new Date()) {
+  const debut = new Date(date)
+  debut.setHours(0, 0, 0, 0)
+  const fin = new Date(debut)
+  fin.setDate(fin.getDate() + 1)
+  const { data, error } = await client()
+    .from('reservations')
+    .select(DASHBOARD_RESA_SELECT)
+    .neq('statut', 'annulee')
+    .gte('creneaux.datetime_debut', debut.toISOString())
+    .lt('creneaux.datetime_debut', fin.toISOString())
+  if (error) throw error
+  return data || []
+}
+
+// Coupes terminées depuis une date (stats mensuelles : mois courant + précédent).
+export async function getResasTermineesDepuis(debutISO) {
+  const { data, error } = await client()
+    .from('reservations')
+    .select(DASHBOARD_RESA_SELECT)
+    .eq('statut', 'terminee')
+    .gte('creneaux.datetime_debut', debutISO)
+  if (error) throw error
+  return data || []
+}
+
+// ════════════════════ CLIENTS (admin) ════════════════════
+
+// Tous les clients (RLS : admin uniquement).
+export async function getClientsAdmin() {
+  const { data, error } = await client()
+    .from('clients')
+    .select('id, prenom, nom, email, avatar_url, is_friend, points_fidelite, role, created_at')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+// Historique terminé de tous les clients (pour générer les fiches).
+export async function getHistoriqueTermine() {
+  const { data, error } = await client()
+    .from('reservations')
+    .select('id, client_id, statut, creneaux!inner(datetime_debut), prestations(nom)')
+    .eq('statut', 'terminee')
+  if (error) throw error
+  return data || []
+}
+
+// Toggle « tarif ami » d'un client.
+export async function setTarifAmi(clientId, isFriend) {
+  const { error } = await client().from('clients').update({ is_friend: isFriend }).eq('id', clientId)
+  if (error) throw error
+}
+
+// ════════════════════ RELANCE (délai configurable) ════════════════════
+
+export async function getRelanceSemaines() {
+  const { data, error } = await client()
+    .from('site_contenu')
+    .select('valeur')
+    .eq('cle', 'relance.semaines')
+    .maybeSingle()
+  if (error) throw error
+  const n = parseInt(data?.valeur, 10)
+  return Number.isFinite(n) && n > 0 ? n : 3
+}
+
+export async function setRelanceSemaines(semaines) {
+  await setContenu('relance.semaines', String(semaines))
+}
+
+// ════════════════════ PARRAINAGE ════════════════════
+
+// Applique un code de parrainage au compte connecté (best-effort).
+// Renvoie true si le parrain a bien reçu son point.
+export async function appliquerParrainage(code) {
+  const { data, error } = await client().rpc('appliquer_parrainage', { p_code: code })
+  if (error) throw error
+  return data === true
 }
 
 // ════════════════════ AVIS via lien email (token = reservationId) ════════════

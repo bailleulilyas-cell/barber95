@@ -1,0 +1,200 @@
+/* « Ma journée en un swipe » — plein écran, sans nav. */
+.ecran {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  overflow: hidden;
+  z-index: 80; /* au-dessus de la bannière d'installation (70) : écran sans distraction */
+  touch-action: pan-y;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px));
+  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0.27, 1);
+  will-change: transform;
+}
+.faceHaut {
+  transform: translateY(-100%);
+}
+.faceBas {
+  transform: translateY(100%);
+}
+
+.date {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  text-transform: capitalize;
+}
+
+.centre {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+.attente {
+  font-size: 2rem;
+  color: var(--muted);
+}
+.lblProchain {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.grandeHeure {
+  font-size: 4.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+}
+.grandNom {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+.style {
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.suivants {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.suivant {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.indice,
+.indiceHaut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 8px 16px;
+}
+.indiceHaut {
+  flex-direction: column-reverse;
+  margin-bottom: 10px;
+}
+.chevron,
+.chevronBas {
+  font-size: 1.1rem;
+  color: var(--gold);
+  animation: flotte 1.6s ease-in-out infinite;
+}
+.chevronBas {
+  transform: rotate(180deg);
+}
+@keyframes flotte {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+/* face détails */
+.faceDetails {
+  background: var(--bg);
+  align-items: stretch;
+}
+.detailsTitre {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.detailsVide {
+  color: var(--muted);
+}
+.detailsListe {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.dResa {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  flex-shrink: 0;
+}
+.dHeure {
+  font-weight: 800;
+  color: var(--gold);
+  min-width: 48px;
+}
+.dInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.dNom {
+  font-weight: 600;
+}
+.dStyle {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.dTel {
+  font-size: 1rem;
+  padding: 4px;
+}
+.dPrix {
+  font-weight: 700;
+}
+
+.dRevenu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: var(--gold-faible);
+  border: 1px solid var(--gold-bord);
+  border-radius: var(--r);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.dRevenuNum {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.lienDash {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-align: center;
+  padding: 8px;
+  flex-shrink: 0;
+}

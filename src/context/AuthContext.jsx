@@ -43,6 +43,22 @@ export function AuthProvider({ children }) {
     }
   }, [chargerProfil])
 
+  // garde l'avatar Google à jour dans `clients` (affiché sur les fiches admin)
+  useEffect(() => {
+    if (!configured) return
+    const meta = session?.user?.user_metadata
+    const avatar = meta?.avatar_url || meta?.picture || null
+    if (!avatar || !profile || profile.avatar_url === avatar) return
+    supabase
+      .from('clients')
+      .update({ avatar_url: avatar })
+      .eq('id', session.user.id)
+      .then(({ error }) => {
+        // colonne absente (migration 0009 pas lancée) → on ignore
+        if (!error) setProfile((p) => (p ? { ...p, avatar_url: avatar } : p))
+      })
+  }, [session, profile])
+
   const signInWithGoogle = useCallback(async (redirectPath = '/mon-espace') => {
     if (!configured) return
     await supabase.auth.signInWithOAuth({

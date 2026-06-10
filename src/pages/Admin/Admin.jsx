@@ -19,6 +19,7 @@ import styles from './Admin.module.css'
 const terminerEtNotifier = async (id) => {
   await marquerTerminee(id)
   notifier('avis', id)
+  notifier('parrainage', id) // « Recommande un pote » avec son lien unique
 }
 const annulerEtNotifier = async (id) => {
   await annulerReservation(id)

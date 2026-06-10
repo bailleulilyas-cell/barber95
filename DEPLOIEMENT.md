@@ -49,6 +49,12 @@ contenu de ces fichiers (copier-coller → Run) :
 - `supabase/migrations/0003_rappels.sql`  (colonne de suivi des rappels)
 - `supabase/migrations/0004_crons.sql`    (libération auto des créneaux + pg_cron)
 - `supabase/migrations/0005_galerie.sql`  (table galerie)
+- `supabase/migrations/0006_contenu.sql`  (textes éditables au clic)
+- `supabase/migrations/0007_prestation_desc.sql` (description de la prestation)
+- `supabase/migrations/0008_realtime.sql` (mises à jour en direct)
+- `supabase/migrations/0009_features.sql` (**dashboard Adam, fiches clients,
+  tarif ami, parrainage, relance, lien partageable** — indispensable pour les
+  nouvelles pages admin)
 
 > Si `0004` renvoie une erreur sur `pg_cron` : Dashboard → Database → Extensions →
 > active **pg_cron**, puis relance le fichier.
@@ -77,7 +83,11 @@ supabase secrets set SITE_URL=https://barber95.vercel.app
 # déploiement :
 supabase functions deploy notify
 supabase functions deploy rappels --no-verify-jwt
+supabase functions deploy relance --no-verify-jwt
 ```
+
+> Déjà déployé `notify` avant ? **Redéploie-le** : il envoie maintenant aussi
+> l'email « Recommande un pote » (lien de parrainage) après chaque coupe terminée.
 
 ### C3. Planifier le rappel 30 min
 - Dashboard Supabase → **Integrations → Cron** (ou section Cron) → **Create job** :
@@ -85,8 +95,24 @@ supabase functions deploy rappels --no-verify-jwt
   - Schedule : `*/5 * * * *` (toutes les 5 min)
   - Type : **Supabase Edge Function** → choisis `rappels`.
 
+### C4. Planifier la relance hebdomadaire des clients inactifs
+- **Plus besoin de l'UI Cron** : lance la migration `0011_cron_relance.sql` dans le
+  SQL Editor — elle programme le cron (lundi 9h) en SQL via pg_cron + pg_net.
+- Pré-requis : `relance` doit être **déployée** (étape C2) pour que l'appel aboutisse.
+- Le délai d'inactivité (3 semaines par défaut) se règle directement depuis le
+  dashboard d'Adam (`/admin/dashboard`, bloc « Relance automatique »).
+
 ✅ Emails actifs : confirmation (client + toi), annulation, rappel 30 min, demande
-d'avis après « Marquer terminé ».
+d'avis + lien de parrainage après « Marquer terminé », relance des inactifs.
+
+---
+
+## C bis. Tarif ami (optionnel)
+
+Le prix réduit « ami » se règle sur `/tarifs` connecté en admin → « Modifier la
+prestation » → champ **Prix ami (€)** (vide = personne n'a de réduction). Ensuite,
+active le toggle « Tarif ami » sur la fiche d'un client (`/admin/clients`) : il
+verra automatiquement le prix réduit, sans aucune mention particulière.
 
 ---
 

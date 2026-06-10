@@ -1,0 +1,193 @@
+.head {
+  margin-bottom: 20px;
+}
+.eyebrow {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+.titre {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.sub {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+.erreur {
+  background: rgba(229, 86, 75, 0.12);
+  border: 1px solid rgba(229, 86, 75, 0.4);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  color: #e89a93;
+  margin-bottom: 18px;
+}
+.vide {
+  color: var(--muted);
+}
+
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fiche {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.ficheHead {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  text-align: left;
+}
+.avatar,
+.avatarVide {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 1px solid var(--line-fort);
+}
+.avatarVide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold-faible);
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.ident {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.prenom {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badgeAmi {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-faible);
+  border-radius: var(--pill);
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+.meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.fleche {
+  color: var(--muted);
+  font-size: 1.1rem;
+  transition: transform 0.25s ease;
+}
+.flecheHaut {
+  transform: rotate(180deg);
+}
+
+.detail {
+  border-top: 1px solid var(--line);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* toggle tarif ami */
+.amiRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.amiTxt {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.amiSub {
+  font-weight: 400;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+.toggle {
+  width: 46px;
+  height: 26px;
+  border-radius: var(--pill);
+  background: var(--surface-2);
+  border: 1px solid var(--line-fort);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.toggleOn {
+  background: var(--gold-grad);
+  border-color: var(--gold);
+}
+.toggleDot {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text);
+  transform: translateY(-50%);
+  transition: left 0.2s ease, background 0.2s ease;
+}
+.toggleOn .toggleDot {
+  left: 23px;
+  background: #1a1a1a;
+}
+.toggle:disabled {
+  opacity: 0.5;
+}
+
+/* mini historique */
+.histo {
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+}
+.histoLigne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+}
+.histoStyle {
+  color: var(--muted);
+}
+.histoVide {
+  font-size: 0.85rem;
+  color: var(--muted);
+}

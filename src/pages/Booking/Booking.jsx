@@ -11,10 +11,13 @@ import {
   getPrestation,
   reserverCreneau,
   confirmerReservation,
+  appliquerParrainage,
   notifier,
   onTableChange,
 } from '../../lib/api'
 import { googleCalUrl, icsDataUri } from '../../lib/calendar'
+import { prixPour } from '../../lib/tarif'
+import { getRefCode, clearRefCode, getSource, clearSource } from '../../lib/referral'
 import Confetti from '../../components/Confetti/Confetti'
 import Skeleton from '../../components/Skeleton/Skeleton'
 import styles from './Booking.module.css'
@@ -123,9 +126,18 @@ export default function Booking() {
     }
     setBusy(true)
     try {
-      const resaId = await reserverCreneau(choisi.id, presta.id)
+      const resaId = await reserverCreneau(choisi.id, presta.id, getSource())
       await confirmerReservation(resaId)
       notifier('confirmation', resaId)
+      // parrainage en attente ? on l'applique (best-effort, +1 point au parrain)
+      const codeRef = getRefCode()
+      if (codeRef) {
+        try {
+          await appliquerParrainage(codeRef)
+        } catch {}
+        clearRefCode() // code consommé ou invalide : on ne réessaie pas
+      }
+      clearSource()
       setConfirme(true)
       celebrer()
     } catch (e) {
@@ -231,7 +243,7 @@ export default function Booking() {
               {profile?.prenom && <Ligne label="Au nom de" valeur={profile.prenom} />}
               <div className={styles.total}>
                 <span>Total</span>
-                <span className={styles.totalPrix}>{presta.prix}€</span>
+                <span className={styles.totalPrix}>{prixPour(profile, presta)}€</span>
               </div>
             </div>
 
