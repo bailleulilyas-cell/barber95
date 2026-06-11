@@ -143,6 +143,18 @@ img {
   }
 }
 
+/* Accessibilité : respecte « réduire les animations » (iOS/Android/desktop). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* apparition en cascade pour les listes (style inline animation-delay) */
 .appear {
   animation: pageIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
