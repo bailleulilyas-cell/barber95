@@ -314,7 +314,7 @@ export async function notifier(type, reservationId) {
 
 // Sélection enrichie pour le dashboard : tarif ami + prix pour le revenu estimé.
 const DASHBOARD_RESA_SELECT =
-  'id, statut, source, created_at, client_id, client_nom, clients(prenom, tel, is_friend), creneaux!inner(datetime_debut, datetime_fin), prestations(nom, prix, prix_ami)'
+  'id, statut, source, offerte, created_at, client_id, client_nom, clients(prenom, tel, is_friend), creneaux!inner(datetime_debut, datetime_fin), prestations(nom, prix, prix_ami)'
 
 // Réservations du jour (toutes sauf annulées), créneau entre deux bornes.
 export async function getResasDuJour(date = new Date()) {

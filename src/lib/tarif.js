@@ -13,6 +13,14 @@ export function prixPour(profile, prestation) {
 }
 
 // Variante pour une réservation enrichie (jointures clients + prestations).
+// Une coupe offerte (fidélité) vaut 0 €.
 export function prixResa(resa) {
+  if (resa?.offerte) return 0
   return prixPour(resa?.clients, resa?.prestations)
+}
+
+// Le client a-t-il droit à une coupe offerte à sa prochaine résa ?
+// (atteint le palier de fidélité). `objectif` vient de FIDELITE.objectif.
+export function coupeOfferte(profile, objectif) {
+  return Boolean(profile && (profile.points_fidelite ?? 0) >= objectif)
 }

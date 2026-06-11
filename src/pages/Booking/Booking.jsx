@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import MagneticButton from '../../components/MagneticButton/MagneticButton'
 import { IconClock, IconCheck } from '../../components/Icons'
 import { CRENEAUX } from '../../data/mock'
-import { PRESTATIONS } from '../../config'
+import { PRESTATIONS, FIDELITE } from '../../config'
 import { configured } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import {
@@ -16,7 +16,7 @@ import {
   onTableChange,
 } from '../../lib/api'
 import { googleCalUrl, icsDataUri } from '../../lib/calendar'
-import { prixPour } from '../../lib/tarif'
+import { prixPour, coupeOfferte } from '../../lib/tarif'
 import { getRefCode, clearRefCode, getSource, clearSource } from '../../lib/referral'
 import Confetti from '../../components/Confetti/Confetti'
 import Skeleton from '../../components/Skeleton/Skeleton'
@@ -243,7 +243,11 @@ export default function Booking() {
               {profile?.prenom && <Ligne label="Au nom de" valeur={profile.prenom} />}
               <div className={styles.total}>
                 <span>Total</span>
-                <span className={styles.totalPrix}>{prixPour(profile, presta)}€</span>
+                {configured && coupeOfferte(profile, FIDELITE.objectif) ? (
+                  <span className={styles.totalPrix}>Offerte 🎁</span>
+                ) : (
+                  <span className={styles.totalPrix}>{prixPour(profile, presta)}€</span>
+                )}
               </div>
             </div>
 

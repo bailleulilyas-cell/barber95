@@ -129,6 +129,21 @@
   margin: 0 0 14px;
 }
 
+/* bandeau coupe offerte */
+.offerte {
+  background: var(--gold-faible);
+  border: 1px solid var(--gold-bord);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  margin-bottom: 28px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+.offerte strong {
+  color: var(--gold);
+}
+
 /* RDV */
 .rdv {
   background: var(--surface);

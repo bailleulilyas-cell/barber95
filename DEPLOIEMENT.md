@@ -59,6 +59,7 @@ contenu de ces fichiers (copier-coller → Run) :
 - `supabase/migrations/0011_cron_relance.sql` (cron relance en SQL)
 - `supabase/migrations/0012_outil_pro.sql` (**fix RLS update clients admin —
   nécessaire pour le tarif ami & les notes** — + notes client + RDV manuel)
+- `supabase/migrations/0013_fidelite_auto.sql` (coupe offerte auto à 10 points)
 
 > Si `0004` renvoie une erreur sur `pg_cron` : Dashboard → Database → Extensions →
 > active **pg_cron**, puis relance le fichier.

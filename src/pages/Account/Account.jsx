@@ -169,6 +169,13 @@ export default function Account() {
           <LoyaltyCard points={points} objectif={FIDELITE.objectif} />
         </section>
 
+        {/* coupe offerte gagnée */}
+        {points >= FIDELITE.objectif && (
+          <div className={styles.offerte}>
+            🎁 Ta prochaine coupe est <strong>offerte</strong> — elle s’applique toute seule à ta résa.
+          </div>
+        )}
+
         {/* prochain RDV */}
         <h2 className={styles.section}>Prochain rendez-vous</h2>
         {chargement ? (
