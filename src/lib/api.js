@@ -228,7 +228,17 @@ export async function creerAvis({ clientId, reservationId, note, commentaire, pr
 // ════════════════════ ADMIN ════════════════════
 
 const ADMIN_RESA_SELECT =
-  'id, statut, created_at, clients(prenom, tel), creneaux(datetime_debut), prestations(nom)'
+  'id, statut, created_at, client_nom, clients(prenom, tel), creneaux(datetime_debut), prestations(nom)'
+
+// Réservation manuelle (walk-in / appel) : RDV confirmé au nom saisi par Adam.
+export async function reserverManuel(creneauId, nom) {
+  const { data, error } = await client().rpc('reserver_manuel', {
+    p_creneau: creneauId,
+    p_nom: nom,
+  })
+  if (error) throw error
+  return data
+}
 
 // Toutes les réservations actives (en_attente/confirmée/terminée), triées par créneau.
 export async function getReservationsAdmin() {
@@ -304,7 +314,7 @@ export async function notifier(type, reservationId) {
 
 // Sélection enrichie pour le dashboard : tarif ami + prix pour le revenu estimé.
 const DASHBOARD_RESA_SELECT =
-  'id, statut, source, created_at, client_id, clients(prenom, tel, is_friend), creneaux!inner(datetime_debut, datetime_fin), prestations(nom, prix, prix_ami)'
+  'id, statut, source, created_at, client_id, client_nom, clients(prenom, tel, is_friend), creneaux!inner(datetime_debut, datetime_fin), prestations(nom, prix, prix_ami)'
 
 // Réservations du jour (toutes sauf annulées), créneau entre deux bornes.
 export async function getResasDuJour(date = new Date()) {
@@ -339,10 +349,19 @@ export async function getResasTermineesDepuis(debutISO) {
 export async function getClientsAdmin() {
   const { data, error } = await client()
     .from('clients')
-    .select('id, prenom, nom, email, avatar_url, is_friend, points_fidelite, role, created_at')
+    .select('id, prenom, nom, email, avatar_url, is_friend, notes, points_fidelite, role, created_at')
     .order('created_at', { ascending: false })
   if (error) throw error
   return data || []
+}
+
+// Notes libres d'Adam sur une fiche client.
+export async function setClientNotes(clientId, notes) {
+  const { error } = await client()
+    .from('clients')
+    .update({ notes: notes?.trim() || null })
+    .eq('id', clientId)
+  if (error) throw error
 }
 
 // Historique terminé de tous les clients (pour générer les fiches).

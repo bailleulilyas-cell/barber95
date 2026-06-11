@@ -75,6 +75,17 @@
   border-radius: var(--pill);
   padding: 2px 8px;
 }
+.manuel {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--line-fort);
+  border-radius: var(--pill);
+  padding: 2px 8px;
+}
 .resaStyle {
   font-size: 0.82rem;
   color: var(--muted);

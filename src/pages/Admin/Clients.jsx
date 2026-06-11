@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import { getClientsAdmin, getHistoriqueTermine, setTarifAmi, onTableChange } from '../../lib/api'
+import {
+  getClientsAdmin,
+  getHistoriqueTermine,
+  setTarifAmi,
+  setClientNotes,
+  onTableChange,
+} from '../../lib/api'
 import { fichesClients } from '../../lib/stats'
 import Skeleton from '../../components/Skeleton/Skeleton'
 import styles from './Clients.module.css'
@@ -66,6 +72,9 @@ export default function Clients() {
       setBusy(null)
     }
   }
+
+  const majNotes = (id, notes) =>
+    setFiches((fs) => fs.map((f) => (f.id === id ? { ...f, notes } : f)))
 
   if (!configured) {
     return (
@@ -152,6 +161,10 @@ export default function Clients() {
                         </button>
                       </label>
 
+                      {/* notes privées d'Adam */}
+                      <NotesField fiche={f} onSaved={(notes) => majNotes(f.id, notes)} />
+
+
                       {/* mini historique scrollable */}
                       {f.historique.length > 0 ? (
                         <div className={styles.histo}>
@@ -174,5 +187,40 @@ export default function Clients() {
         )}
       </div>
     </main>
+  )
+}
+
+// Notes privées d'Adam sur un client (style, préférences…). Sauvegarde au blur.
+function NotesField({ fiche, onSaved }) {
+  const toast = useToast()
+  const [valeur, setValeur] = useState(fiche.notes || '')
+  const [saving, setSaving] = useState(false)
+
+  const sauver = async () => {
+    const v = valeur.trim()
+    if (v === (fiche.notes || '')) return // rien changé
+    setSaving(true)
+    try {
+      await setClientNotes(fiche.id, v)
+      onSaved(v || null)
+      toast('Note enregistrée ✓')
+    } catch (e) {
+      toast(e.message || 'Erreur', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <label className={styles.notes}>
+      <span className={styles.notesLbl}>Notes {saving && <span className={styles.notesSave}>· …</span>}</span>
+      <textarea
+        rows={2}
+        value={valeur}
+        onChange={(e) => setValeur(e.target.value)}
+        onBlur={sauver}
+        placeholder="Style, préférences, remarques…"
+      />
+    </label>
   )
 }

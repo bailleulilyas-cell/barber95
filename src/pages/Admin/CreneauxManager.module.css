@@ -169,6 +169,21 @@
   opacity: 0.5;
 }
 
+.conge {
+  width: 100%;
+  margin-top: 16px;
+  padding: 13px;
+  border-radius: var(--r-sm);
+  background: rgba(229, 86, 75, 0.1);
+  border: 1px solid rgba(229, 86, 75, 0.3);
+  color: var(--red);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.conge:disabled {
+  opacity: 0.5;
+}
+
 .jours {
   display: flex;
   gap: 8px;

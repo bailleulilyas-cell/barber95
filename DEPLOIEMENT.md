@@ -55,6 +55,10 @@ contenu de ces fichiers (copier-coller → Run) :
 - `supabase/migrations/0009_features.sql` (**dashboard Adam, fiches clients,
   tarif ami, parrainage, relance, lien partageable** — indispensable pour les
   nouvelles pages admin)
+- `supabase/migrations/0010_security_hardening.sql` (warnings sécurité)
+- `supabase/migrations/0011_cron_relance.sql` (cron relance en SQL)
+- `supabase/migrations/0012_outil_pro.sql` (**fix RLS update clients admin —
+  nécessaire pour le tarif ami & les notes** — + notes client + RDV manuel)
 
 > Si `0004` renvoie une erreur sur `pg_cron` : Dashboard → Database → Extensions →
 > active **pg_cron**, puis relance le fichier.

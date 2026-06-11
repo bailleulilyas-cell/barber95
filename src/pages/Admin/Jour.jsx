@@ -99,7 +99,7 @@ export default function Jour() {
           <div className={styles.centre}>
             <span className={styles.lblProchain}>Prochain RDV</span>
             <span className={styles.grandeHeure}>{heure(prochain.creneaux.datetime_debut)}</span>
-            <span className={styles.grandNom}>{prochain.clients?.prenom || 'Client'}</span>
+            <span className={styles.grandNom}>{prochain.clients?.prenom || prochain.client_nom || 'Client'}</span>
             {prochain.prestations?.nom && (
               <span className={styles.style}>{prochain.prestations.nom}</span>
             )}
@@ -119,7 +119,7 @@ export default function Jour() {
           <div className={styles.suivants}>
             {suivants.slice(0, 3).map((r) => (
               <span key={r.id} className={styles.suivant}>
-                {heure(r.creneaux.datetime_debut)} · {r.clients?.prenom || 'Client'}
+                {heure(r.creneaux.datetime_debut)} · {r.clients?.prenom || r.client_nom || 'Client'}
               </span>
             ))}
             {suivants.length > 3 && (
@@ -150,7 +150,7 @@ export default function Jour() {
               <div key={r.id} className={styles.dResa}>
                 <span className={styles.dHeure}>{heure(r.creneaux.datetime_debut)}</span>
                 <div className={styles.dInfo}>
-                  <span className={styles.dNom}>{r.clients?.prenom || 'Client'}</span>
+                  <span className={styles.dNom}>{r.clients?.prenom || r.client_nom || 'Client'}</span>
                   {r.prestations?.nom && <span className={styles.dStyle}>{r.prestations.nom}</span>}
                 </div>
                 {r.clients?.tel && (

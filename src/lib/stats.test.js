@@ -82,6 +82,22 @@ describe('statsMensuelles', () => {
     expect(s.progression).toBe(90) // (38-20)/20
   })
 
+  it('RDV manuel (client_nom, sans compte) compté dans le client du mois', () => {
+    const manuel = {
+      id: 'm1',
+      client_id: null,
+      client_nom: 'Walk-in Sofiane',
+      statut: 'terminee',
+      clients: null,
+      creneaux: { datetime_debut: new Date(2026, 5, 5, 10, 0).toISOString() },
+      prestations: { nom: 'Coupe', prix: 10, prix_ami: 8 },
+    }
+    const s = statsMensuelles([manuel, manuel], AUJOURDHUI)
+    expect(s.coupesMois).toBe(2)
+    expect(s.revenuMois).toBe(20) // pas de tarif ami pour un walk-in
+    expect(s.clientFidele).toEqual({ prenom: 'Walk-in Sofiane', coupes: 2 })
+  })
+
   it('mois précédent vide → progression null (pas de division par zéro)', () => {
     const s = statsMensuelles([resa({ quand: new Date(2026, 5, 2), statut: 'terminee' })], AUJOURDHUI)
     expect(s.progression).toBe(null)

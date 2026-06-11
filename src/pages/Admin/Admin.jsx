@@ -10,9 +10,10 @@ import {
 } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import { IconCalendar } from '../../components/Icons'
+import { IconCalendar, IconPlus } from '../../components/Icons'
 import { RESERVATIONS_ADMIN } from '../../data/mock'
 import CreneauxManager from './CreneauxManager'
+import ReservationManuelle from './ReservationManuelle'
 import styles from './Admin.module.css'
 
 const terminerEtNotifier = async (id) => {
@@ -42,6 +43,7 @@ export default function Admin() {
   const [err, setErr] = useState(null)
   const [busy, setBusy] = useState(null)
   const [gestion, setGestion] = useState(false)
+  const [manuel, setManuel] = useState(false)
 
   const charger = useCallback(async () => {
     if (!configured) return
@@ -115,11 +117,15 @@ export default function Admin() {
 
         {err && <p className={styles.erreur}>{err}</p>}
 
-        {/* action : ouvrir/fermer les créneaux */}
+        {/* actions : créneaux + RDV manuel */}
         <div className={styles.quick}>
           <button className={styles.quickBtn} onClick={() => setGestion(true)}>
             <IconCalendar size={20} />
             Gérer mes créneaux
+          </button>
+          <button className={styles.quickGhost} onClick={() => setManuel(true)}>
+            <IconPlus size={20} />
+            RDV manuel
           </button>
         </div>
 
@@ -204,6 +210,15 @@ export default function Admin() {
           }}
         />
       )}
+
+      {manuel && (
+        <ReservationManuelle
+          onClose={() => {
+            setManuel(false)
+            charger()
+          }}
+        />
+      )}
     </main>
   )
 }
@@ -216,7 +231,10 @@ function Resa({ r, busy, onTerminer, onAnnuler }) {
         <span className={styles.resaJ}>{dateLisible(r.creneaux.datetime_debut)}</span>
       </div>
       <div className={styles.resaInfo}>
-        <span className={styles.resaNom}>{r.clients?.prenom || 'Client'}</span>
+        <span className={styles.resaNom}>
+          {r.clients?.prenom || r.client_nom || 'Client'}
+          {!r.clients && r.client_nom && <span className={styles.manuelTag}>sur place</span>}
+        </span>
         {r.clients?.tel && <a className={styles.resaTel} href={`tel:${r.clients.tel}`}>{r.clients.tel}</a>}
       </div>
       <div className={styles.resaActions}>

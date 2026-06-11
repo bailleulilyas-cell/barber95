@@ -166,6 +166,37 @@
   opacity: 0.5;
 }
 
+/* notes privées */
+.notes {
+  display: block;
+}
+.notesLbl {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.notesSave {
+  color: var(--gold);
+}
+.notes textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 56px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-fort);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  padding: 10px 12px;
+}
+.notes textarea:focus {
+  outline: none;
+  border-color: var(--gold-bord);
+}
+
 /* mini historique */
 .histo {
   max-height: 180px;

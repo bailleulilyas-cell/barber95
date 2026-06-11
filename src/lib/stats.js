@@ -83,7 +83,7 @@ export function statsMensuelles(resas, maintenant = new Date()) {
   // client le plus fidèle du mois
   const parClient = new Map()
   duMois.forEach((r) => {
-    const prenom = r.clients?.prenom || 'Client'
+    const prenom = r.clients?.prenom || r.client_nom || 'Client'
     parClient.set(prenom, (parClient.get(prenom) || 0) + 1)
   })
   let clientFidele = null

@@ -131,8 +131,9 @@ export default function Dashboard() {
                 <span className={styles.resaH}>{heure(r.creneaux.datetime_debut)}</span>
                 <div className={styles.resaInfo}>
                   <span className={styles.resaNom}>
-                    {r.clients?.prenom || 'Client'}
+                    {r.clients?.prenom || r.client_nom || 'Client'}
                     {r.clients?.is_friend && <span className={styles.ami}>ami</span>}
+                    {!r.clients && r.client_nom && <span className={styles.manuel}>sur place</span>}
                   </span>
                   {r.prestations?.nom && <span className={styles.resaStyle}>{r.prestations.nom}</span>}
                 </div>

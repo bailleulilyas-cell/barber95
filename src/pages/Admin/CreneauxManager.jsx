@@ -131,6 +131,27 @@ function ModeJour({ toast }) {
     }
   }
 
+  // congé : ferme tous les créneaux ouverts du jour (les réservés sont gardés)
+  const ouverts = creneaux.filter((c) => c.statut === 'ouvert')
+  const reserves = creneaux.length - ouverts.length
+  const fermerJournee = async () => {
+    if (!ouverts.length) return
+    setBusy('jour')
+    try {
+      for (const c of ouverts) await fermerCreneau(c.id)
+      await charger()
+      toast(
+        reserves > 0
+          ? `Journée fermée (${reserves} RDV déjà pris conservés)`
+          : 'Journée fermée — bon congé ✂️'
+      )
+    } catch (e) {
+      toast(e.message, 'error')
+    } finally {
+      setBusy(null)
+    }
+  }
+
   return (
     <>
       <p className={styles.aide}>Touche un horaire pour l’ouvrir (or) ou le refermer.</p>
@@ -168,6 +189,12 @@ function ModeJour({ toast }) {
           )
         })}
       </div>
+
+      {ouverts.length > 0 && (
+        <button className={styles.conge} disabled={busy === 'jour'} onClick={fermerJournee}>
+          {busy === 'jour' ? 'Fermeture…' : `Fermer toute la journée (congé) · ${ouverts.length}`}
+        </button>
+      )}
     </>
   )
 }
