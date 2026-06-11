@@ -169,6 +169,8 @@
 }
 .graphe svg {
   outline: none;
+  /* graphes purement visuels : aucun événement tactile → aucun surlignage */
+  pointer-events: none;
 }
 .grapheTitre {
   display: block;

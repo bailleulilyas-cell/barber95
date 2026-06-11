@@ -7,7 +7,6 @@ import {
   Line,
   XAxis,
   YAxis,
-  Tooltip,
   CartesianGrid,
 } from 'recharts'
 import { useAuth } from '../../context/AuthContext'
@@ -25,14 +24,6 @@ function meteoJournee(n) {
   if (n === 0) return 'Aucun RDV aujourd’hui — journée tranquille'
   if (n === 1) return '1 RDV aujourd’hui'
   return `${n} RDV aujourd’hui`
-}
-
-const TOOLTIP_STYLE = {
-  background: '#1a1a1a',
-  border: '1px solid rgba(255,255,255,0.14)',
-  borderRadius: 12,
-  color: '#fff',
-  fontSize: 13,
 }
 
 export default function Dashboard() {
@@ -162,8 +153,7 @@ export default function Dashboard() {
                   <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                   <XAxis dataKey="label" stroke="#8b8b8b" fontSize={11} tickLine={false} />
                   <YAxis stroke="#8b8b8b" fontSize={11} tickLine={false} allowDecimals={false} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} cursor={false} />
-                  <Bar dataKey="coupes" name="Coupes" fill="#c9a84c" radius={[6, 6, 0, 0]} isAnimationActive={false} />
+                  <Bar dataKey="coupes" name="Coupes" fill="#c9a84c" radius={[6, 6, 0, 0]} isAnimationActive={false} activeBar={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -175,7 +165,6 @@ export default function Dashboard() {
                   <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                   <XAxis dataKey="label" stroke="#8b8b8b" fontSize={11} tickLine={false} />
                   <YAxis stroke="#8b8b8b" fontSize={11} tickLine={false} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} cursor={false} />
                   <Line
                     type="monotone"
                     dataKey="revenu"
@@ -183,6 +172,7 @@ export default function Dashboard() {
                     stroke="#e8c766"
                     strokeWidth={2.5}
                     dot={{ fill: '#e8c766', r: 3 }}
+                    activeDot={false}
                     isAnimationActive={false}
                   />
                 </LineChart>
