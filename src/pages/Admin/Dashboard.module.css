@@ -151,6 +151,13 @@
   border-radius: var(--r);
   padding: 14px 12px 6px;
   margin-bottom: 12px;
+  /* pas de sélection ni de flash au toucher sur les graphes */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.graphe svg {
+  outline: none;
 }
 .grapheTitre {
   display: block;
